@@ -70,11 +70,10 @@ async function saveCollection(collName, records) {
   }
 }
 
-const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users", reasonCodes: "reasonCodes" };
+const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users", reasonCodes: "reasonCodes", locations: "locations" };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUSES = ["Checked In", "Checked Out", "Lost", "Deactivated"];
-const LOCATIONS = ["Stone Mountain Hub", "With Customer", "Off Site Vendor"];
 const ROLES = ["Admin", "Librarian", "Viewer"];
 
 const STATUS_COLOR = {
@@ -127,6 +126,13 @@ function seedUsers() {
   ];
 }
 
+function seedLocations() {
+  return [
+    { id: "loc1", label: "Stone Mountain Hub" },
+    { id: "loc2", label: "With Customer" },
+    { id: "loc3", label: "Off Site Vendor" },
+  ];
+}
 function seedReasonCodes() {
   return [
     { id: "rc1", label: "Zone Flow" },
@@ -144,6 +150,7 @@ export default function App() {
   const [audit, setAudit] = useState([]);
   const [users, setUsers] = useState([]);
   const [reasonCodes, setReasonCodes] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [view, setView] = useState("dashboard");
   const [selectedKey, setSelectedKey] = useState(null);
@@ -156,19 +163,21 @@ export default function App() {
   useEffect(() => {
     (async () => {
       console.log("[Firebase] Loading collections...");
-      const [k, b, a, u, rc] = await Promise.all([
+      const [k, b, a, u, rc, locs] = await Promise.all([
         loadCollection(STORAGE_KEYS.keys),
         loadCollection(STORAGE_KEYS.borrowing),
         loadCollection(STORAGE_KEYS.audit),
         loadCollection(STORAGE_KEYS.users),
         loadCollection(STORAGE_KEYS.reasonCodes),
+        loadCollection(STORAGE_KEYS.locations),
       ]);
-      console.log("[Firebase] keys:", k?.length, "borrowing:", b?.length, "audit:", a?.length, "users:", u?.length, "reasonCodes:", rc?.length);
+      console.log("[Firebase] keys:", k?.length, "borrowing:", b?.length, "audit:", a?.length, "users:", u?.length, "reasonCodes:", rc?.length, "locations:", locs?.length);
       setKeys(k || seedKeys());
       setBorrowing(b || seedBorrowing());
       setAudit(a || seedAudit());
       setUsers(u || seedUsers());
       setReasonCodes(rc || seedReasonCodes());
+      setLocations(locs || seedLocations());
       const loadedUsers = u || seedUsers();
       setCurrentUser(loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
       setLoaded(true);
@@ -206,6 +215,12 @@ export default function App() {
       saveCollection(STORAGE_KEYS.reasonCodes, reasonCodes);
     }
   }, [reasonCodes, saveEnabled]);
+  useEffect(() => {
+    if (saveEnabled) {
+      console.log("[Firebase] Saving locations:", locations.length);
+      saveCollection(STORAGE_KEYS.locations, locations);
+    }
+  }, [locations, saveEnabled]);
 
   const notify = useCallback((msg, type = "success") => {
     setNotification({ msg, type });
@@ -294,12 +309,13 @@ export default function App() {
     let added = 0, skipped = 0;
     const newKeys = [];
     const newAudit = [];
+    const defaultLocation = locations[0]?.label || "Stone Mountain Hub";
     for (const row of rows) {
       if (!row.MvaID || keys.find(k => k.MvaID === row.MvaID)) { skipped++; continue; }
       newKeys.push({
         MvaID: row.MvaID,
         status: row["Key Status"] || "Checked In",
-        location: row["Key Assigned Location"] || LOCATIONS[0],
+        location: row["Key Assigned Location"] || defaultLocation,
         numKeys: parseInt(row["# of Keys"] || "1") || 1,
         notes: "",
         dateAdded: now(),
@@ -314,7 +330,7 @@ export default function App() {
     setKeys(k => [...k, ...newKeys]);
     setAudit(a => [...a, ...newAudit]);
     notify(`Imported ${added} keys. Skipped ${skipped} duplicates/invalid.`);
-  }, [keys, currentUser, notify]);
+  }, [keys, locations, currentUser, notify]);
 
   if (!loaded) return <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", background:"#0a0e1a", color:"#64748b", fontFamily:"monospace", fontSize:"18px" }}>Loading Key Library...</div>;
 
@@ -376,7 +392,7 @@ export default function App() {
         {/* Main Content */}
         <main style={{ flex:1, overflow:"auto", padding:"28px", minWidth:0, width:0 }}>
           {view === "dashboard" && (
-            <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} reasonCodes={reasonCodes} />
+            <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} reasonCodes={reasonCodes} locations={locations} />
           )}
           {view === "detail" && selectedKey && (
             <KeyDetail keyData={keys.find(k => k.MvaID === selectedKey)} borrowing={borrowing} audit={audit} checkOut={checkOut} checkIn={checkIn} removeKey={removeKey} markLost={markLost} updateNotes={updateNotes} currentUser={currentUser} canEdit={canEdit} setView={setView} notify={notify} reasonCodes={reasonCodes} />
@@ -389,6 +405,9 @@ export default function App() {
           )}
           {view === "reasoncodes" && currentUser?.role === "Admin" && (
             <ReasonCodesView reasonCodes={reasonCodes} setReasonCodes={setReasonCodes} notify={notify} />
+          )}
+          {view === "locations" && currentUser?.role === "Admin" && (
+            <LocationsView locations={locations} setLocations={setLocations} notify={notify} />
           )}
         </main>
       </div>
@@ -409,6 +428,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
     ...(currentUser?.role === "Admin" ? [
       { id: "users", icon: "◉", label: "Users" },
       { id: "reasoncodes", icon: "◧", label: "Reason Codes" },
+      { id: "locations", icon: "◎", label: "Locations" },
     ] : []),
   ];
 
@@ -494,11 +514,12 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
 }
 
 // ─── Dashboard (merged with Inventory) ───────────────────────────────────────
-function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelectedKey, setView, canEdit, checkOut, checkIn, currentUser, notify, reasonCodes }) {
+function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelectedKey, setView, canEdit, checkOut, checkIn, currentUser, notify, reasonCodes, locations }) {
+  const locationLabels = locations.map(l => l.label);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(new Set(["Checked In", "Checked Out", "Lost"]));
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [locFilter, setLocFilter] = useState(new Set(LOCATIONS));
+  const [locFilter, setLocFilter] = useState(() => new Set(locations.map(l => l.label)));
   const [locDropdownOpen, setLocDropdownOpen] = useState(false);
   const [checkoutModal, setCheckoutModal] = useState(null);
   const [checkinModal, setCheckinModal] = useState(null);
@@ -585,7 +606,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
     : `${statusFilter.size} Statuses`;
 
   const locLabel = locFilter.size === 0 ? "No Location"
-    : locFilter.size === LOCATIONS.length ? "All Locations"
+    : locFilter.size === locationLabels.length ? "All Locations"
     : locFilter.size === 1 ? [...locFilter][0]
     : `${locFilter.size} Locations`;
 
@@ -679,10 +700,10 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
           {locDropdownOpen && (
             <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, minWidth:240, background:"#0f1629", border:"1px solid #1e293b", borderRadius:8, padding:"6px 0", zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,.5)" }}>
               <div style={{ display:"flex", gap:0, borderBottom:"1px solid #1e293b", marginBottom:4 }}>
-                <button onClick={() => setLocFilter(new Set(LOCATIONS))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>All</button>
+                <button onClick={() => setLocFilter(new Set(locationLabels))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>All</button>
                 <button onClick={() => setLocFilter(new Set())} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>None</button>
               </div>
-              {LOCATIONS.map(l => (
+              {locationLabels.map(l => (
                 <label key={l} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 14px", cursor:"pointer", transition:"background .1s" }}
                   onMouseEnter={e => e.currentTarget.style.background="#1e293b"}
                   onMouseLeave={e => e.currentTarget.style.background="transparent"}
@@ -807,7 +828,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
         </div>
       )}
 
-      {showAdd && <AddKeyModal onAdd={(d) => { addKey(d); setShowAdd(false); }} onClose={() => setShowAdd(false)} />}
+      {showAdd && <AddKeyModal onAdd={(d) => { addKey(d); setShowAdd(false); }} onClose={() => setShowAdd(false)} locations={locations} />}
       {showImport && <ImportModal onImport={bulkImport} onClose={() => setShowImport(false)} notify={notify} />}
       {showExport && <ExportModal filteredKeys={filtered} borrowing={borrowing} onClose={() => setShowExport(false)} />}
       {checkoutModal && <CheckOutModal MvaID={checkoutModal} currentUser={currentUser} checkOut={checkOut} reasonCodes={reasonCodes} onClose={() => setCheckoutModal(null)} />}
@@ -1201,6 +1222,121 @@ function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
   );
 }
 
+// ─── Locations (Admin) ────────────────────────────────────────────────────────
+function LocationsView({ locations, setLocations, notify }) {
+  const [newLabel, setNewLabel] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [confirmRemove, setConfirmRemove] = useState(null);
+
+  const addLocation = () => {
+    const trimmed = newLabel.trim();
+    if (!trimmed) return notify("Label required", "error");
+    if (locations.find(l => l.label.toLowerCase() === trimmed.toLowerCase())) return notify("Location already exists", "error");
+    setLocations(prev => [...prev, { id: uuid(), label: trimmed }]);
+    setNewLabel("");
+    notify("Location added");
+  };
+
+  const startEdit = (loc) => {
+    setEditId(loc.id);
+    setEditLabel(loc.label);
+  };
+
+  const saveEdit = (id) => {
+    const trimmed = editLabel.trim();
+    if (!trimmed) return notify("Label required", "error");
+    const conflict = locations.find(l => l.id !== id && l.label.toLowerCase() === trimmed.toLowerCase());
+    if (conflict) return notify("Location already exists", "error");
+    setLocations(prev => prev.map(l => l.id === id ? { ...l, label: trimmed } : l));
+    setEditId(null);
+    notify("Location updated");
+  };
+
+  const removeLocation = (id) => {
+    setLocations(prev => prev.filter(l => l.id !== id));
+    setConfirmRemove(null);
+    notify("Location removed");
+  };
+
+  return (
+    <div>
+      <PageHeader title="Locations" subtitle="Manage key assigned location picklist" />
+      <div className="card" style={{ maxWidth:500, marginBottom:24 }}>
+        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Add Location</h3>
+        <div className="form-group">
+          <label className="form-label">Label</label>
+          <input
+            className="input"
+            value={newLabel}
+            onChange={e => setNewLabel(e.target.value)}
+            placeholder="e.g. North Depot"
+            onKeyDown={e => e.key === "Enter" && addLocation()}
+          />
+        </div>
+        <button className="btn btn-primary" onClick={addLocation}>Add Location</button>
+      </div>
+
+      <div className="card" style={{ padding:0, overflow:"hidden", maxWidth:500 }}>
+        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+          <thead>
+            <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
+              {["Location","Actions"].map(h => (
+                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {locations.map(loc => (
+              <tr key={loc.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
+                <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>
+                  {editId === loc.id ? (
+                    <input
+                      className="input"
+                      value={editLabel}
+                      onChange={e => setEditLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") saveEdit(loc.id); if (e.key === "Escape") setEditId(null); }}
+                      autoFocus
+                      style={{ maxWidth:280 }}
+                    />
+                  ) : loc.label}
+                </td>
+                <td style={{ padding:"12px 16px", display:"flex", gap:8 }}>
+                  {editId === loc.id ? (
+                    <>
+                      <button className="btn btn-sm btn-primary" onClick={() => saveEdit(loc.id)}>Save</button>
+                      <button className="btn btn-sm btn-ghost" onClick={() => setEditId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => startEdit(loc)}>Edit</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(loc.id)}>Remove</button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {locations.length === 0 && (
+              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No locations defined</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {confirmRemove && (
+        <ConfirmModal
+          title="Remove Location"
+          message={`Remove "${locations.find(l => l.id === confirmRemove)?.label}"? This will not affect existing key records.`}
+          confirmLabel="Remove"
+          danger={true}
+          onConfirm={() => removeLocation(confirmRemove)}
+          onClose={() => setConfirmRemove(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 function EditUserModal({ user, setUser, onSave, onClose }) {
   const [showPw, setShowPw] = useState(false);
   return (
@@ -1374,9 +1510,9 @@ function CheckInModal({ MvaID, currentUser, checkIn, onClose }) {
   );
 }
 
-function AddKeyModal({ onAdd, onClose }) {
+function AddKeyModal({ onAdd, onClose, locations }) {
   const [MvaID, setMvaID] = useState("");
-  const [location, setLocation] = useState(LOCATIONS[0]);
+  const [location, setLocation] = useState(locations[0]?.label || "");
   const [notes, setNotes] = useState("");
   const [numKeys, setNumKeys] = useState("");
   const submit = () => { onAdd({ MvaID: MvaID.trim(), location, notes, numKeys: parseInt(numKeys) || 1 }); };
@@ -1387,7 +1523,7 @@ function AddKeyModal({ onAdd, onClose }) {
         <div className="form-group"><label className="form-label">MvaID (8-digit) *</label><input className="input" value={MvaID} onChange={e => setMvaID(e.target.value)} placeholder="12345678" maxLength={8} /></div>
         <div className="form-group"><label className="form-label">Assigned Location *</label>
           <select className="input" value={location} onChange={e => setLocation(e.target.value)}>
-            {LOCATIONS.map(l => <option key={l}>{l}</option>)}
+            {locations.map(l => <option key={l.id} value={l.label}>{l.label}</option>)}
           </select>
         </div>
         <div className="form-group"><label className="form-label"># of Keys</label><input className="input" type="number" value={numKeys} onChange={e => setNumKeys(e.target.value)} placeholder="1" min={1} /></div>
