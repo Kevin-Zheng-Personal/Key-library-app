@@ -337,21 +337,21 @@ export default function App() {
     notify(`Imported ${added} keys. Skipped ${skipped} duplicates/invalid.`);
   }, [keys, locations, currentUser, notify]);
 
-  if (!loaded) return <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", background:"#0a0e1a", color:"#64748b", fontFamily:"monospace", fontSize:"18px" }}>Loading Key Library...</div>;
+  if (!loaded) return <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", background:"#0a0e1a", color:"#64748b", fontFamily:"'Roboto',sans-serif", fontSize:"18px" }}>Loading Key Library...</div>;
 
   const canEdit = currentUser && (currentUser.role === "Admin" || currentUser.role === "Librarian");
 
   return (
-    <div style={{ height:"100vh", width:"100vw", background:"#0a0e1a", color:"#e2e8f0", fontFamily:"'DM Mono', 'Courier New', monospace", display:"flex", flexDirection:"row", overflow:"hidden" }}>
+    <div style={{ height:"100vh", width:"100vw", background:"#0a0e1a", color:"#e2e8f0", fontFamily:"'Roboto', sans-serif", display:"flex", flexDirection:"row", overflow:"hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f1629; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         input, select, textarea { outline: none; }
         button { cursor: pointer; }
-        .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:6px; border:none; font-family:'DM Mono',monospace; font-size:12px; font-weight:500; transition:all .15s; letter-spacing:.05em; }
+        .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:6px; border:none; font-family:'Roboto',sans-serif; font-size:12px; font-weight:500; transition:all .15s; letter-spacing:.05em; }
         .btn-primary { background:#3b82f6; color:#fff; }
         .btn-primary:hover { background:#2563eb; }
         .btn-success { background:#22c55e; color:#000; }
@@ -364,7 +364,7 @@ export default function App() {
         .btn-ghost:hover { background:#1e293b; color:#e2e8f0; }
         .btn-sm { padding:5px 10px; font-size:11px; }
         .card { background:#0f1629; border:1px solid #1e293b; border-radius:10px; padding:20px; }
-        .input { background:#0a0e1a; border:1px solid #1e293b; border-radius:6px; color:#e2e8f0; padding:8px 12px; font-family:'DM Mono',monospace; font-size:13px; width:100%; transition:border .15s; }
+        .input { background:#0a0e1a; border:1px solid #1e293b; border-radius:6px; color:#e2e8f0; padding:8px 12px; font-family:'Roboto',sans-serif; font-size:13px; width:100%; transition:border .15s; }
         .input:focus { border-color:#3b82f6; }
         .tag { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:500; letter-spacing:.04em; }
         .nav-item { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; cursor:pointer; transition:all .15s; font-size:13px; color:#64748b; border:none; background:none; width:100%; text-align:left; font-family:inherit; }
@@ -468,7 +468,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
         {navItems.map(item => (
           <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
             <span style={{ fontSize:14 }}>{item.icon}</span>
-            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:12 }}>{item.label}</span>
+            <span style={{ fontFamily:"'Roboto',sans-serif", fontSize:12 }}>{item.label}</span>
           </button>
         ))}
       </nav>
@@ -645,7 +645,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
               onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = "#1e293b"; }}
             >
               <div style={{ fontSize:11, color: isActive ? s.color : "#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:8, transition:"color .15s" }}>{s.label}</div>
-              <div style={{ fontSize:32, fontWeight:700, color:s.color, fontFamily:"'Space Grotesk',sans-serif" }}>{s.val}</div>
+              <div style={{ fontSize:32, fontWeight:700, color:s.color, fontFamily:"'Roboto',sans-serif" }}>{s.val}</div>
               {isActive && <div style={{ fontSize:10, color: s.color + "99", marginTop:6, letterSpacing:".06em" }}>FILTERING ↓ click to reset</div>}
             </div>
           );
@@ -770,7 +770,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
               return (
               <tr key={k.MvaID} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
                 <td style={{ padding:"12px 16px" }}>
-                  <button onClick={() => { setSelectedKey(k.MvaID); setView("detail"); }} style={{ background:"none", border:"none", color:"#60a5fa", cursor:"pointer", fontFamily:"'DM Mono',monospace", fontSize:13, textDecoration:"underline" }}>{k.MvaID}</button>
+                  <button onClick={() => { setSelectedKey(k.MvaID); setView("detail"); }} style={{ background:"none", border:"none", color:"#60a5fa", cursor:"pointer", fontFamily:"'Roboto',sans-serif", fontSize:13, textDecoration:"underline" }}>{k.MvaID}</button>
                 </td>
                 <td style={{ padding:"12px 16px" }}>
                   <span className="tag" style={{ background: STATUS_COLOR[k.status] + "22", color: STATUS_COLOR[k.status] }}>{k.status}</span>
@@ -1021,7 +1021,7 @@ function AuditLog({ audit }) {
             {filtered.map(a => (
               <tr key={a.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
                 <td style={{ padding:"10px 16px", color:"#64748b", fontSize:11 }}>{fmtDT(a.dt)}</td>
-                <td style={{ padding:"10px 16px", color:"#60a5fa", fontFamily:"'DM Mono',monospace" }}>{a.MvaID}</td>
+                <td style={{ padding:"10px 16px", color:"#60a5fa", fontFamily:"'Roboto',sans-serif" }}>{a.MvaID}</td>
                 <td style={{ padding:"10px 16px", color:"#94a3b8" }}>{a.change}</td>
                 <td style={{ padding:"10px 16px", color:"#64748b" }}>{a.user}</td>
               </tr>
@@ -1387,7 +1387,7 @@ function ConfirmModal({ title, message, confirmLabel = "Confirm", danger = false
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             </div>
           )}
-          <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:17, color:"#e2e8f0" }}>{title}</h2>
+          <h2 style={{ fontFamily:"'Roboto',sans-serif", fontSize:17, color:"#e2e8f0" }}>{title}</h2>
         </div>
         <p style={{ fontSize:13, color:"#94a3b8", marginBottom:24, lineHeight:1.6 }}>{message}</p>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
@@ -1436,7 +1436,7 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ maxWidth:440 }} onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:18, marginBottom:6 }}>Export CSV</h2>
+        <h2 style={{ fontFamily:"'Roboto',sans-serif", fontSize:18, marginBottom:6 }}>Export CSV</h2>
         <p style={{ fontSize:12, color:"#64748b", marginBottom:28 }}>{filteredKeys.length} row{filteredKeys.length !== 1 ? "s" : ""} ready to export</p>
 
         <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
@@ -1477,7 +1477,7 @@ function CheckOutModal({ MvaID, currentUser, checkOut, reasonCodes, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", marginBottom:20, fontSize:18 }}>Check Out Key {MvaID}</h2>
+        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Check Out Key {MvaID}</h2>
         <div className="form-group"><label className="form-label">Librarian Name *</label><input className="input" value={librarian} onChange={e => setLibrarian(e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Borrower Name *</label><input className="input" value={borrower} onChange={e => setBorrower(e.target.value)} placeholder="Who is borrowing this key?" /></div>
         <div className="form-group">
@@ -1503,7 +1503,7 @@ function CheckInModal({ MvaID, currentUser, checkIn, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", marginBottom:20, fontSize:18 }}>Check In Key {MvaID}</h2>
+        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Check In Key {MvaID}</h2>
         <div className="form-group"><label className="form-label">Librarian Name *</label><input className="input" value={librarian} onChange={e => setLibrarian(e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Borrower Name *</label><input className="input" value={borrower} onChange={e => setBorrower(e.target.value)} placeholder="Who is returning this key?" /></div>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:20 }}>
@@ -1524,7 +1524,7 @@ function AddKeyModal({ onAdd, onClose, locations }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", marginBottom:20, fontSize:18 }}>Add New Key</h2>
+        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Add New Key</h2>
         <div className="form-group"><label className="form-label">MvaID (8-digit) *</label><input className="input" value={MvaID} onChange={e => setMvaID(e.target.value)} placeholder="12345678" maxLength={8} /></div>
         <div className="form-group"><label className="form-label">Assigned Location *</label>
           <select className="input" value={location} onChange={e => setLocation(e.target.value)}>
@@ -1592,7 +1592,7 @@ function ImportModal({ onImport, onClose, notify }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ maxWidth:640 }} onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", marginBottom:4, fontSize:18 }}>Import Keys from CSV</h2>
+        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:4, fontSize:18 }}>Import Keys from CSV</h2>
         <p style={{ fontSize:12, color:"#64748b", marginBottom:16 }}>Required columns: MvaID, Key Assigned Location, Key Status. Optional: # of Keys</p>
 
         {/* Sample template section */}
@@ -1674,7 +1674,7 @@ function ImportModal({ onImport, onClose, notify }) {
 function PageHeader({ title, subtitle }) {
   return (
     <div style={{ marginBottom:24 }}>
-      <h1 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:26, fontWeight:700, color:"#e2e8f0", letterSpacing:"-.02em", marginBottom:2 }}>{title}</h1>
+      <h1 style={{ fontFamily:"'Roboto',sans-serif", fontSize:26, fontWeight:700, color:"#e2e8f0", letterSpacing:"-.02em", marginBottom:2 }}>{title}</h1>
       {subtitle && <p style={{ fontSize:12, color:"#64748b", letterSpacing:".04em" }}>{subtitle}</p>}
     </div>
   );
