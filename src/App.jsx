@@ -429,6 +429,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
         <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
           {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
         </select>
+        <div style={{ marginTop:10, fontSize:10, color:"#334155", textAlign:"center", letterSpacing:".08em" }}>Beta v1.0</div>
       </div>
 
       {/* Password Modal */}
