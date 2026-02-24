@@ -899,8 +899,6 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
               </span>
             )
           } />
-          <InfoRow label="Added" value={fmtDT(keyData.dateAdded)} />
-          <InfoRow label="Added By" value={keyData.addedBy} />
           {(keyData.status === "Checked Out" || keyData.status === "Lost") && daysOut !== null && (
             <InfoRow label="Days Out" value={<span style={{ color: daysOut > 1 ? "#ef4444" : "#f59e0b" }}>{daysOut} day{daysOut !== 1 ? "s" : ""} {daysOut > 1 ? "⚠ OVERDUE" : ""}</span>} />
           )}
