@@ -1,17 +1,76 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore, collection, doc,
+  getDocs, setDoc, deleteDoc, writeBatch
+} from "firebase/firestore";
 
-// ─── Persistent Storage Helpers ───────────────────────────────────────────────
-const STORAGE_KEYS = { keys: "klms:keys", borrowing: "klms:borrowing", audit: "klms:audit", users: "klms:users" };
+// ─── Firebase Config ──────────────────────────────────────────────────────────
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCPK8wZA4TYwazJnJfbrEGh89umFhEQWJQ",
+  authDomain: "key-tracker-d2080.firebaseapp.com",
+  projectId: "key-tracker-d2080",
+  storageBucket: "key-tracker-d2080.firebasestorage.app",
+  messagingSenderId: "777047823916",
+  appId: "1:777047823916:web:a9c56b623ccb6db278a389",
+  measurementId: "G-ZMTL8V20WX",
+};
 
-async function loadData(key) {
+const FIREBASE_CONFIGURED = true;
+const firebaseApp = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(firebaseApp);
+
+// ─── Firebase Helpers ─────────────────────────────────────────────────────────
+// Each collection (keys, borrowing, audit, users) stores records as individual docs
+// Doc ID = record's unique field (MvaID for keys, id for others)
+
+function getRecordId(collName, record) {
+  if (collName === "keys") return record.MvaID;
+  return record.id;
+}
+
+async function loadCollection(collName) {
   try {
-    const r = await window.storage.get(key);
-    return r ? JSON.parse(r.value) : null;
-  } catch { return null; }
+    const snap = await getDocs(collection(db, collName));
+    if (snap.empty) return null;
+    return snap.docs.map(d => d.data());
+  } catch (e) {
+    console.error(`[Firebase] Load error (${collName}):`, e);
+    return null;
+  }
 }
-async function saveData(key, val) {
-  try { await window.storage.set(key, JSON.stringify(val)); } catch {}
+
+async function saveCollection(collName, records) {
+  try {
+    // Use batched writes (max 500 per batch)
+    const existing = await getDocs(collection(db, collName));
+    const existingIds = new Set(existing.docs.map(d => d.id));
+    const newIds = new Set(records.map(r => getRecordId(collName, r)));
+
+    // Delete removed records
+    const toDelete = [...existingIds].filter(id => !newIds.has(id));
+    for (let i = 0; i < toDelete.length; i += 490) {
+      const batch = writeBatch(db);
+      toDelete.slice(i, i + 490).forEach(id => batch.delete(doc(db, collName, id)));
+      await batch.commit();
+    }
+
+    // Upsert all current records in batches
+    for (let i = 0; i < records.length; i += 490) {
+      const batch = writeBatch(db);
+      records.slice(i, i + 490).forEach(r => {
+        const id = getRecordId(collName, r);
+        batch.set(doc(db, collName, id), r);
+      });
+      await batch.commit();
+    }
+    console.log(`[Firebase] Saved ${collName}: ${records.length} records`);
+  } catch (e) {
+    console.error(`[Firebase] Save error (${collName}):`, e);
+  }
 }
+
+const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users" };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUSES = ["Checked In", "Checked Out", "Lost", "Deactivated"];
@@ -80,28 +139,55 @@ export default function App() {
   const [selectedKey, setSelectedKey] = useState(null);
   const [notification, setNotification] = useState(null);
 
-  // Load data
+  // Track whether initial Firebase load is complete before allowing saves
+  const [saveEnabled, setSaveEnabled] = useState(false);
+
+  // Load all collections from Firebase on mount
   useEffect(() => {
     (async () => {
-      const k = await loadData(STORAGE_KEYS.keys);
-      const b = await loadData(STORAGE_KEYS.borrowing);
-      const a = await loadData(STORAGE_KEYS.audit);
-      const u = await loadData(STORAGE_KEYS.users);
+      console.log("[Firebase] Loading collections...");
+      const [k, b, a, u] = await Promise.all([
+        loadCollection(STORAGE_KEYS.keys),
+        loadCollection(STORAGE_KEYS.borrowing),
+        loadCollection(STORAGE_KEYS.audit),
+        loadCollection(STORAGE_KEYS.users),
+      ]);
+      console.log("[Firebase] keys:", k?.length, "borrowing:", b?.length, "audit:", a?.length, "users:", u?.length);
       setKeys(k || seedKeys());
       setBorrowing(b || seedBorrowing());
       setAudit(a || seedAudit());
       setUsers(u || seedUsers());
       const loadedUsers = u || seedUsers();
       setCurrentUser(loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
-
       setLoaded(true);
+      setTimeout(() => setSaveEnabled(true), 300);
     })();
   }, []);
 
-  useEffect(() => { if (loaded) saveData(STORAGE_KEYS.keys, keys); }, [keys, loaded]);
-  useEffect(() => { if (loaded) saveData(STORAGE_KEYS.borrowing, borrowing); }, [borrowing, loaded]);
-  useEffect(() => { if (loaded) saveData(STORAGE_KEYS.audit, audit); }, [audit, loaded]);
-  useEffect(() => { if (loaded) saveData(STORAGE_KEYS.users, users); }, [users, loaded]);
+  useEffect(() => { 
+    if (saveEnabled) {
+      console.log("[Firebase] Saving keys:", keys.length);
+      saveCollection(STORAGE_KEYS.keys, keys);
+    }
+  }, [keys, saveEnabled]);
+  useEffect(() => { 
+    if (saveEnabled) {
+      console.log("[Firebase] Saving borrowing:", borrowing.length);
+      saveCollection(STORAGE_KEYS.borrowing, borrowing);
+    }
+  }, [borrowing, saveEnabled]);
+  useEffect(() => { 
+    if (saveEnabled) {
+      console.log("[Firebase] Saving audit:", audit.length);
+      saveCollection(STORAGE_KEYS.audit, audit);
+    }
+  }, [audit, saveEnabled]);
+  useEffect(() => { 
+    if (saveEnabled) {
+      console.log("[Firebase] Saving users:", users.length);
+      saveCollection(STORAGE_KEYS.users, users);
+    }
+  }, [users, saveEnabled]);
 
   const notify = useCallback((msg, type = "success") => {
     setNotification({ msg, type });
@@ -217,7 +303,7 @@ export default function App() {
   const canEdit = currentUser && (currentUser.role === "Admin" || currentUser.role === "Librarian");
 
   return (
-    <div style={{ minHeight:"100vh", background:"#0a0e1a", color:"#e2e8f0", fontFamily:"'DM Mono', 'Courier New', monospace", display:"flex", flexDirection:"column" }}>
+    <div style={{ height:"100vh", width:"100vw", background:"#0a0e1a", color:"#e2e8f0", fontFamily:"'DM Mono', 'Courier New', monospace", display:"flex", flexDirection:"row", overflow:"hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -251,6 +337,9 @@ export default function App() {
         .stat-card { background:#0f1629; border:1px solid #1e293b; border-radius:10px; padding:20px 24px; }
         .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
         .form-label { font-size:11px; color:#64748b; letter-spacing:.08em; text-transform:uppercase; }
+        .table-wrap { width:100%; overflow-x:auto; }
+        table { width:100%; min-width:600px; }
+        .page-content { width:100%; max-width:100%; box-sizing:border-box; }
       `}</style>
 
       {/* Notification */}
@@ -260,12 +349,14 @@ export default function App() {
         </div>
       )}
 
-      <div style={{ display:"flex", flex:1, overflow:"hidden", height:"100vh" }}>
+
+
+      <div style={{ display:"flex", flex:1, overflow:"hidden", minWidth:0 }}>
         {/* Sidebar */}
         <Sidebar currentUser={currentUser} users={users} setCurrentUser={setCurrentUser} view={view} setView={setView} />
 
         {/* Main Content */}
-        <main style={{ flex:1, overflow:"auto", padding:"28px" }}>
+        <main style={{ flex:1, overflow:"auto", padding:"28px", minWidth:0, width:0 }}>
           {view === "dashboard" && (
             <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} />
           )}
@@ -320,11 +411,11 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
   };
 
   return (
-    <aside style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px", flexShrink:0 }}>
+    <aside style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px 90px 12px", flexShrink:0, height:"100vh", position:"sticky", top:0, overflow:"hidden" }}>
       <div style={{ marginBottom:28, paddingLeft:6 }}>
         <div style={{ fontSize:11, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4 }}>Key Library</div>
       </div>
-      <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1 }}>
+      <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, overflowY:"auto" }}>
         {navItems.map(item => (
           <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
             <span style={{ fontSize:14 }}>{item.icon}</span>
@@ -333,7 +424,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
         ))}
       </nav>
 
-      <div style={{ borderTop:"1px solid #1e293b", paddingTop:16, marginTop:8 }}>
+      <div style={{ borderTop:"1px solid #1e293b", paddingTop:16, position:"absolute", bottom:0, left:0, right:0, padding:"16px 12px", background:"#080c18" }}>
         <div style={{ fontSize:10, color:"#475569", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em" }}>Logged in as</div>
         <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
           {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
@@ -386,10 +477,15 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
   const [locDropdownOpen, setLocDropdownOpen] = useState(false);
   const [checkoutModal, setCheckoutModal] = useState(null);
   const [checkinModal, setCheckinModal] = useState(null);
+  const [page, setPage] = useState(1);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [activeCard, setActiveCard] = useState(null);
+  const PAGE_SIZE = 20;
+
+  useEffect(() => { setPage(1); }, [search, statusFilter, locFilter, activeCard]);
 
   const toggleStatus = (s) => {
     setStatusFilter(prev => {
@@ -418,8 +514,6 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
   const checkedOut = active.filter(k => k.status === "Checked Out").length;
   const lost = active.filter(k => k.status === "Lost").length;
   const overdue = overdueIds.size;
-
-  const [activeCard, setActiveCard] = useState(null);
 
   const handleCardClick = (cardLabel) => {
     if (activeCard === cardLabel) {
@@ -456,6 +550,10 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   const statusLabel = statusFilter.size === 0 ? "No Status"
     : statusFilter.size === STATUSES.length ? "All Statuses"
     : statusFilter.size === 1 ? [...statusFilter][0]
@@ -471,7 +569,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
       <PageHeader title="Key Inventory" />
 
       {/* Stats */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:16, marginBottom:28 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))", gap:12, marginBottom:28 }}>
         {[
           { label:"Total Keys", val: active.length, color:"#3b82f6" },
           { label:"Checked In", val: checkedIn, color:"#22c55e" },
@@ -596,6 +694,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
 
       {/* Key Table */}
       <div className="card" style={{ padding:0, overflow:"hidden" }}>
+        <div className="table-wrap">
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
             <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
@@ -605,7 +704,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
             </tr>
           </thead>
           <tbody>
-            {filtered.map(k => {
+            {paginated.map(k => {
               // Compute days out
               let daysOut = 0;
               if (k.status === "Checked Out" || k.status === "Lost") {
@@ -656,7 +755,32 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
             )}
           </tbody>
         </table>
+        </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:16, padding:"0 4px" }}>
+          <span style={{ fontSize:11, color:"#64748b" }}>
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} keys
+          </span>
+          <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(1)}>««</button>
+            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(p => p - 1)}>‹ Prev</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1).reduce((acc, p, i, arr) => {
+              if (i > 0 && p - arr[i-1] > 1) acc.push("...");
+              acc.push(p);
+              return acc;
+            }, []).map((p, i) => p === "..." ? (
+              <span key={`ellipsis-${i}`} style={{ color:"#475569", padding:"0 4px" }}>…</span>
+            ) : (
+              <button key={p} className="btn btn-sm" style={{ background: p === safePage ? "#3b82f6" : "#1e293b", color: p === safePage ? "#fff" : "#94a3b8", border:"none", minWidth:32 }} onClick={() => setPage(p)}>{p}</button>
+            ))}
+            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)}>Next ›</button>
+            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(totalPages)}>»»</button>
+          </div>
+        </div>
+      )}
 
       {showAdd && <AddKeyModal onAdd={(d) => { addKey(d); setShowAdd(false); }} onClose={() => setShowAdd(false)} />}
       {showImport && <ImportModal onImport={bulkImport} onClose={() => setShowImport(false)} notify={notify} />}
@@ -701,7 +825,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
         <PageHeader title={`Key ${keyData.MvaID}`} subtitle="Key Details" />
       </div>
 
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginBottom:24 }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:20, marginBottom:24 }}>
         <div className="card">
           <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Key Information</h3>
           <InfoRow label="MvaID" value={keyData.MvaID} />
