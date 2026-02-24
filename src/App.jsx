@@ -73,12 +73,14 @@ async function saveCollection(collName, records) {
 const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users", reasonCodes: "reasonCodes", locations: "locations" };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUSES = ["Checked In", "Checked Out", "Lost", "Deactivated"];
+const STATUSES = ["Checked In", "Checked Out", "With Customer", "With Off Site Vendor", "Lost", "Deactivated"];
 const ROLES = ["Admin", "Librarian", "Viewer"];
 
 const STATUS_COLOR = {
   "Checked In": "#22c55e",
   "Checked Out": "#f59e0b",
+  "With Customer": "#06b6d4",
+  "With Off Site Vendor": "#8b5cf6",
   "Lost": "#ef4444",
   "Deactivated": "#94a3b8",
 };
@@ -266,22 +268,28 @@ export default function App() {
   const checkOut = useCallback((MvaID, borrowerName, librarianName, reasonCode) => {
     const key = keys.find(k => k.MvaID === MvaID);
     if (!key || key.status !== "Checked In") return notify("Key is not available for checkout", "error");
-    // Count existing checkouts for borrower (excluding With Customer)
-    const borrowerCount = keys.filter(k => k.status === "Checked Out" && k.lastBorrower === borrowerName && k.location !== "With Customer").length;
+    // Count existing standard checkouts for borrower (exclude special-status keys)
+    const borrowerCount = keys.filter(k => k.status === "Checked Out" && k.lastBorrower === borrowerName).length;
     if (borrowerCount >= 2) return notify(`${borrowerName} already has 2 keys checked out`, "error");
 
+    // Determine status from reason code
+    let newStatus = "Checked Out";
+    if (reasonCode === "Customer Pickup") newStatus = "With Customer";
+    else if (reasonCode === "Off Site Vendor") newStatus = "With Off Site Vendor";
+
     setKeys(k => k.map(key => key.MvaID === MvaID
-      ? { ...key, status: "Checked Out", lastUpdated: now(), lastUpdatedBy: librarianName, lastBorrower: borrowerName }
+      ? { ...key, status: newStatus, lastUpdated: now(), lastUpdatedBy: librarianName, lastBorrower: borrowerName }
       : key));
     const record = { id: uuid(), MvaID, action: "Checked Out", librarianName, borrowerName, reasonCode: reasonCode || "", eventDT: now() };
     setBorrowing(b => [...b, record]);
-    addAudit(MvaID, `Checked Out to ${borrowerName} by ${librarianName} — Reason: ${reasonCode || "N/A"}`, librarianName);
-    notify(`Key ${MvaID} checked out to ${borrowerName}`);
+    addAudit(MvaID, `Checked Out to ${borrowerName} by ${librarianName} — Reason: ${reasonCode || "N/A"} — Status: ${newStatus}`, librarianName);
+    notify(`Key ${MvaID} checked out to ${borrowerName} (${newStatus})`);
   }, [keys, addAudit, notify]);
 
   const checkIn = useCallback((MvaID, librarianName, borrowerName) => {
     const key = keys.find(k => k.MvaID === MvaID);
-    if (!key || (key.status !== "Checked Out" && key.status !== "Lost")) return notify("Key must be Checked Out or Lost to check in", "error");
+    const checkInAllowed = ["Checked Out", "With Customer", "With Off Site Vendor", "Lost"];
+    if (!key || !checkInAllowed.includes(key.status)) return notify("Key must be checked out to check in", "error");
 
     const wasLost = key.status === "Lost";
     setKeys(k => k.map(key => key.MvaID === MvaID
@@ -562,7 +570,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
 function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelectedKey, setView, canEdit, checkOut, checkIn, currentUser, notify, reasonCodes, locations }) {
   const locationLabels = locations.map(l => l.label);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState(new Set(["Checked In", "Checked Out", "Lost"]));
+  const [statusFilter, setStatusFilter] = useState(new Set(["Checked In", "Checked Out", "With Customer", "With Off Site Vendor", "Lost"]));
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [locFilter, setLocFilter] = useState(() => new Set(locations.map(l => l.label)));
   const [locDropdownOpen, setLocDropdownOpen] = useState(false);
@@ -595,8 +603,9 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
   };
 
   const active = keys.filter(k => k.status !== "Deactivated");
+  const OUT_STATUSES = new Set(["Checked Out", "With Customer", "With Off Site Vendor"]);
   const overdueIds = new Set(keys.filter(k => {
-    if (k.status !== "Checked Out") return false;
+    if (!OUT_STATUSES.has(k.status)) return false;
     const last = borrowing.filter(b => b.MvaID === k.MvaID && b.action === "Checked Out").sort((a,b) => b.eventDT > a.eventDT ? 1 : -1)[0];
     return last && daysSince(last.eventDT) > 1;
   }).map(k => k.MvaID));
@@ -610,7 +619,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
     if (activeCard === cardLabel) {
       // deselect — reset to defaults
       setActiveCard(null);
-      setStatusFilter(new Set(["Checked In", "Checked Out", "Lost"]));
+      setStatusFilter(new Set(["Checked In", "Checked Out", "With Customer", "With Off Site Vendor", "Lost"]));
       setSearch("");
       return;
     }
@@ -798,14 +807,14 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
             {paginated.map(k => {
               // Compute days out
               let daysOut = 0;
-              if (k.status === "Checked Out" || k.status === "Lost") {
+              if (k.status !== "Checked In" && k.status !== "Deactivated") {
                 const lastEvent = [...borrowing]
                   .filter(b => b.MvaID === k.MvaID && (b.action === "Checked Out" || b.action === "Checked In"))
                   .sort((a, b) => b.eventDT > a.eventDT ? 1 : -1)[0];
                 if (lastEvent) daysOut = daysSince(lastEvent.eventDT);
                 else daysOut = daysSince(k.lastUpdated);
               }
-              const isOverdue = daysOut > 1 && k.status === "Checked Out";
+              const isOverdue = daysOut > 1 && OUT_STATUSES.has(k.status);
               const isLostLong = k.status === "Lost" && daysOut > 0;
               return (
               <tr key={k.MvaID} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
@@ -832,7 +841,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
                     {canEdit && k.status === "Checked In" && (
                       <button className="btn btn-warning btn-sm" onClick={() => setCheckoutModal(k.MvaID)}>Checkout</button>
                     )}
-                    {canEdit && (k.status === "Checked Out" || k.status === "Lost") && (
+                    {canEdit && (k.status === "Checked Out" || k.status === "With Customer" || k.status === "With Off Site Vendor" || k.status === "Lost") && (
                       <button className="btn btn-success btn-sm" onClick={() => setCheckinModal(k.MvaID)}>Checkin</button>
                     )}
 
@@ -955,10 +964,10 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
               {keyData.status === "Checked In" && (
                 <button className="btn btn-warning" onClick={() => setCheckoutModal(true)}>Check Out</button>
               )}
-              {(keyData.status === "Checked Out" || keyData.status === "Lost") && (
+              {(keyData.status === "Checked Out" || keyData.status === "With Customer" || keyData.status === "With Off Site Vendor" || keyData.status === "Lost") && (
                 <button className="btn btn-success" onClick={() => setCheckinModal(true)}>Check In</button>
               )}
-              {(keyData.status === "Checked In" || keyData.status === "Checked Out") && (
+              {(keyData.status === "Checked In" || keyData.status === "Checked Out" || keyData.status === "With Customer" || keyData.status === "With Off Site Vendor") && (
                 <button className="btn" onClick={() => setConfirmLost(true)} style={{ background:"#78350f", color:"#fcd34d", border:"1px solid #92400e", display:"flex", alignItems:"center", gap:6 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="11"/><line x1="11" y1="14" x2="11.01" y2="14"/></svg>
                   Mark as Lost
