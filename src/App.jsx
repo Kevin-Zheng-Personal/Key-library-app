@@ -379,6 +379,22 @@ export default function App() {
         .table-wrap { width:100%; overflow-x:auto; }
         table { width:100%; min-width:600px; }
         .page-content { width:100%; max-width:100%; box-sizing:border-box; }
+        @media (max-width: 767px) {
+          .sidebar-desktop { display: none !important; }
+          .mobile-header { display: flex !important; }
+          .mobile-nav { display: flex !important; }
+          .page-main { padding: 16px !important; padding-top: 72px !important; padding-bottom: 76px !important; }
+          .modal { max-width: calc(100vw - 24px) !important; }
+          .modal-overlay { padding: 12px !important; }
+          .card { padding: 16px !important; }
+          .stat-card { padding: 14px 16px !important; }
+          .btn { padding: 9px 14px !important; font-size: 13px !important; }
+          .btn-sm { padding: 7px 12px !important; font-size: 12px !important; }
+        }
+        @media (min-width: 768px) {
+          .mobile-header { display: none !important; }
+          .mobile-nav { display: none !important; }
+        }
       `}</style>
 
       {/* Notification */}
@@ -395,7 +411,7 @@ export default function App() {
         <Sidebar currentUser={currentUser} users={users} setCurrentUser={setCurrentUser} view={view} setView={setView} />
 
         {/* Main Content */}
-        <main style={{ flex:1, overflow:"auto", padding:"28px", minWidth:0, width:0 }}>
+        <main className="page-main" style={{ flex:1, overflow:"auto", padding:"28px", minWidth:0, width:0 }}>
           {view === "dashboard" && (
             <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} reasonCodes={reasonCodes} locations={locations} />
           )}
@@ -460,26 +476,50 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
   };
 
   return (
-    <aside style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px 90px 12px", flexShrink:0, height:"100vh", position:"sticky", top:0, overflow:"hidden" }}>
-      <div style={{ marginBottom:28, paddingLeft:6 }}>
-        <div style={{ fontSize:11, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4 }}>Key Library</div>
-      </div>
-      <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, overflowY:"auto" }}>
+    <>
+      {/* ── Desktop Sidebar ─────────────────────────────────────── */}
+      <aside className="sidebar-desktop" style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px 90px 12px", flexShrink:0, height:"100vh", position:"sticky", top:0, overflow:"hidden" }}>
+        <div style={{ marginBottom:28, paddingLeft:6 }}>
+          <div style={{ fontSize:11, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4 }}>Key Library</div>
+        </div>
+        <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, overflowY:"auto" }}>
+          {navItems.map(item => (
+            <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
+              <span style={{ fontSize:14 }}>{item.icon}</span>
+              <span style={{ fontFamily:"'Roboto',sans-serif", fontSize:12 }}>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div style={{ borderTop:"1px solid #1e293b", position:"absolute", bottom:0, left:0, right:0, padding:"16px 12px", background:"#080c18" }}>
+          <div style={{ fontSize:10, color:"#475569", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em" }}>Logged in as</div>
+          <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
+            {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
+          </select>
+          <div style={{ marginTop:10, fontSize:10, color:"#334155", textAlign:"center", letterSpacing:".08em" }}>Beta v1.2</div>
+        </div>
+      </aside>
+
+      {/* ── Mobile Header ────────────────────────────────────────── */}
+      <header className="mobile-header" style={{ display:"none", position:"fixed", top:0, left:0, right:0, height:56, zIndex:300, background:"#080c18", borderBottom:"1px solid #1e293b", alignItems:"center", justifyContent:"space-between", padding:"0 16px", gap:12 }}>
+        <div style={{ fontSize:12, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", fontWeight:600, whiteSpace:"nowrap" }}>Key Library</div>
+        <select className="input" style={{ fontSize:13, padding:"7px 10px", width:"auto", maxWidth:190 }} value={currentUser?.id} onChange={handleUserChange}>
+          {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+        </select>
+      </header>
+
+      {/* ── Mobile Bottom Nav ────────────────────────────────────── */}
+      <nav className="mobile-nav" style={{ display:"none", position:"fixed", bottom:0, left:0, right:0, height:60, zIndex:300, background:"#080c18", borderTop:"1px solid #1e293b", alignItems:"stretch", overflowX:"auto" }}>
         {navItems.map(item => (
-          <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
-            <span style={{ fontSize:14 }}>{item.icon}</span>
-            <span style={{ fontFamily:"'Roboto',sans-serif", fontSize:12 }}>{item.label}</span>
+          <button
+            key={item.id}
+            onClick={() => setView(item.id)}
+            style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:3, flex:1, minWidth:64, padding:"6px 4px", border:"none", borderTop: view === item.id ? "2px solid #3b82f6" : "2px solid transparent", background:"none", color: view === item.id ? "#3b82f6" : "#64748b", cursor:"pointer", transition:"color .15s" }}
+          >
+            <span style={{ fontSize:17 }}>{item.icon}</span>
+            <span style={{ fontSize:10, letterSpacing:".03em", whiteSpace:"nowrap" }}>{item.label}</span>
           </button>
         ))}
       </nav>
-
-      <div style={{ borderTop:"1px solid #1e293b", paddingTop:16, position:"absolute", bottom:0, left:0, right:0, padding:"16px 12px", background:"#080c18" }}>
-        <div style={{ fontSize:10, color:"#475569", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em" }}>Logged in as</div>
-        <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
-          {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
-        </select>
-        <div style={{ marginTop:10, fontSize:10, color:"#334155", textAlign:"center", letterSpacing:".08em" }}>Beta v1.2</div>
-      </div>
 
       {/* Password Modal */}
       {pendingUser && (
@@ -514,7 +554,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
           </div>
         </div>
       )}
-    </aside>
+    </>
   );
 }
 
