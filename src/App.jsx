@@ -15,7 +15,7 @@ async function saveData(key, val) {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUSES = ["Checked In", "Checked Out", "Lost", "Deactivated"];
-const LOCATIONS = ["Stone Mountain Hub", "Aux Lot – Rock Chapel", "Aux Lot – Jabco", "With Customer", "Off-site Vended"];
+const LOCATIONS = ["Stone Mountain Hub", "With Customer", "Off Site Vendor"];
 const ROLES = ["Admin", "Librarian", "Viewer"];
 
 const STATUS_COLOR = {
@@ -36,9 +36,9 @@ function seedKeys() {
   return [
     { MvaID: "10000001", status: "Checked In", location: "Stone Mountain Hub", numKeys: 1, notes: "", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "" },
     { MvaID: "10000002", status: "Checked Out", location: "Stone Mountain Hub", numKeys: 1, notes: "Spare key", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "Jane Smith" },
-    { MvaID: "10000003", status: "Checked In", location: "Aux Lot – Rock Chapel", numKeys: 2, notes: "", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "" },
-    { MvaID: "10000004", status: "Lost", location: "Aux Lot – Jabco", numKeys: 1, notes: "Reported missing", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "Bob Lee" },
-    { MvaID: "10000005", status: "Checked In", location: "Off-site Vended", numKeys: 3, notes: "", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "" },
+    { MvaID: "10000003", status: "Checked In", location: "Stone Mountain Hub", numKeys: 2, notes: "", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "" },
+    { MvaID: "10000004", status: "Lost", location: "Stone Mountain Hub", numKeys: 1, notes: "Reported missing", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "Bob Lee" },
+    { MvaID: "10000005", status: "Checked In", location: "Off Site Vendor", numKeys: 3, notes: "", dateAdded: now(), addedBy: "Admin", lastUpdated: now(), lastUpdatedBy: "Admin", lastBorrower: "" },
   ];
 }
 function seedBorrowing() {
@@ -55,9 +55,16 @@ function seedAudit() {
 }
 function seedUsers() {
   return [
-    { id: "u1", name: "Admin", role: "Admin" },
-    { id: "u2", name: "Alice", role: "Librarian" },
-    { id: "u3", name: "Bob", role: "Viewer" },
+    { id: "u1", name: "Kevin Zheng", role: "Admin", email: "", password: "KevinFlexcar" },
+    { id: "u2", name: "Mike Bogosh", role: "Admin", email: "", password: "Bogosh" },
+    { id: "u3", name: "Isabella Rios", role: "Admin", email: "", password: "Rios" },
+    { id: "u4", name: "Nigel Thomas", role: "Admin", email: "", password: "Thomas" },
+    { id: "u5", name: "Travon Murray", role: "Admin", email: "", password: "Murray" },
+    { id: "u6", name: "Desmond Hatchett", role: "Librarian", email: "", password: "DHatchett" },
+    { id: "u7", name: "Michelle Hunt", role: "Librarian", email: "", password: "MHunt" },
+    { id: "u10", name: "Alice", role: "Librarian", email: "", password: "" },
+    { id: "u8", name: "Daniel Raimer", role: "Admin", email: "", password: "Raimer" },
+    { id: "u9", name: "Everyone", role: "Viewer", email: "", password: "" },
   ];
 }
 
@@ -84,7 +91,9 @@ export default function App() {
       setBorrowing(b || seedBorrowing());
       setAudit(a || seedAudit());
       setUsers(u || seedUsers());
-      setCurrentUser((u || seedUsers())[0]);
+      const loadedUsers = u || seedUsers();
+      setCurrentUser(loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
+
       setLoaded(true);
     })();
   }, []);
@@ -169,6 +178,12 @@ export default function App() {
     addAudit(MvaID, `Key marked as Lost by ${currentUser.name}`, currentUser.name);
     notify(`Key ${MvaID} marked as Lost`);
   }, [keys, currentUser, addAudit, notify]);
+
+  const updateNotes = useCallback((MvaID, newNotes) => {
+    setKeys(k => k.map(key => key.MvaID === MvaID ? { ...key, notes: newNotes, lastUpdated: now(), lastUpdatedBy: currentUser.name } : key));
+    addAudit(MvaID, `Notes updated by ${currentUser.name}`, currentUser.name);
+    notify("Notes saved");
+  }, [currentUser, addAudit, notify]);
 
   const bulkImport = useCallback((rows, confirmed) => {
     if (!confirmed) return;
@@ -255,13 +270,10 @@ export default function App() {
             <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} />
           )}
           {view === "detail" && selectedKey && (
-            <KeyDetail keyData={keys.find(k => k.MvaID === selectedKey)} borrowing={borrowing} audit={audit} checkOut={checkOut} checkIn={checkIn} removeKey={removeKey} markLost={markLost} currentUser={currentUser} canEdit={canEdit} setView={setView} notify={notify} />
+            <KeyDetail keyData={keys.find(k => k.MvaID === selectedKey)} borrowing={borrowing} audit={audit} checkOut={checkOut} checkIn={checkIn} removeKey={removeKey} markLost={markLost} updateNotes={updateNotes} currentUser={currentUser} canEdit={canEdit} setView={setView} notify={notify} />
           )}
           {view === "audit" && (
             <AuditLog audit={audit} />
-          )}
-          {view === "reports" && (
-            <Reports keys={keys} borrowing={borrowing} />
           )}
           {view === "users" && currentUser?.role === "Admin" && (
             <UsersView users={users} setUsers={setUsers} notify={notify} />
@@ -274,20 +286,44 @@ export default function App() {
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
+  const [pendingUser, setPendingUser] = useState(null);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState("");
+  const [showPw, setShowPw] = useState(false);
+
   const navItems = [
     { id: "dashboard", icon: "⬡", label: "Key Inventory" },
     { id: "audit", icon: "◈", label: "Audit Log" },
-    { id: "reports", icon: "⬕", label: "Reports" },
     ...(currentUser?.role === "Admin" ? [{ id: "users", icon: "◉", label: "Users" }] : []),
   ];
+
+  const handleUserChange = (e) => {
+    const target = users.find(u => u.id === e.target.value);
+    if (!target) return;
+    if (target.password) {
+      setPendingUser(target);
+      setPwInput("");
+      setPwError("");
+      setShowPw(false);
+    } else {
+      setCurrentUser(target);
+    }
+  };
+
+  const submitPassword = () => {
+    if (pwInput === pendingUser.password) {
+      setCurrentUser(pendingUser);
+      setPendingUser(null);
+    } else {
+      setPwError("Incorrect password. Try again.");
+    }
+  };
 
   return (
     <aside style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px", flexShrink:0 }}>
       <div style={{ marginBottom:28, paddingLeft:6 }}>
         <div style={{ fontSize:11, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4 }}>Key Library</div>
-        <div style={{ fontSize:18, fontWeight:700, fontFamily:"'Space Grotesk',sans-serif", color:"#e2e8f0", letterSpacing:"-.01em" }}>Management System</div>
       </div>
-
       <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1 }}>
         {navItems.map(item => (
           <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
@@ -299,10 +335,44 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
 
       <div style={{ borderTop:"1px solid #1e293b", paddingTop:16, marginTop:8 }}>
         <div style={{ fontSize:10, color:"#475569", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em" }}>Logged in as</div>
-        <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={e => setCurrentUser(users.find(u => u.id === e.target.value))}>
+        <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
           {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
         </select>
       </div>
+
+      {/* Password Modal */}
+      {pendingUser && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.65)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }}>
+          <div className="card" style={{ width:360, maxWidth:"90vw" }}>
+            <h2 style={{ fontSize:15, fontWeight:700, color:"#e2e8f0", marginBottom:6 }}>Sign In Required</h2>
+            <p style={{ fontSize:12, color:"#94a3b8", marginBottom:18 }}>
+              Enter the password for <strong style={{ color:"#e2e8f0" }}>{pendingUser.name}</strong> ({pendingUser.role})
+            </p>
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <div style={{ display:"flex", gap:8 }}>
+                <input
+                  className="input"
+                  type={showPw ? "text" : "password"}
+                  value={pwInput}
+                  onChange={e => { setPwInput(e.target.value); setPwError(""); }}
+                  onKeyDown={e => e.key === "Enter" && submitPassword()}
+                  autoFocus
+                  style={{ flex:1 }}
+                />
+                <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>
+                  {showPw ? "Hide" : "Show"}
+                </button>
+              </div>
+              {pwError && <div style={{ color:"#f87171", fontSize:11, marginTop:6 }}>{pwError}</div>}
+            </div>
+            <div style={{ display:"flex", gap:8, justifyContent:"flex-end", marginTop:8 }}>
+              <button className="btn" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={() => setPendingUser(null)}>Cancel</button>
+              <button className="btn btn-primary" onClick={submitPassword}>Sign In</button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
@@ -398,7 +468,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
 
   return (
     <div onClick={() => { setStatusDropdownOpen(false); setLocDropdownOpen(false); }}>
-      <PageHeader title="Key Inventory" subtitle={`${active.length} active keys`} />
+      <PageHeader title="Key Inventory" />
 
       {/* Stats */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:16, marginBottom:28 }}>
@@ -575,12 +645,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
                     {canEdit && (k.status === "Checked Out" || k.status === "Lost") && (
                       <button className="btn btn-success btn-sm" onClick={() => setCheckinModal(k.MvaID)}>Checkin</button>
                     )}
-                    {(currentUser?.role === "Admin" || currentUser?.role === "Librarian") && k.status !== "Deactivated" && (
-                      <button className="btn btn-danger btn-sm" title="Delete Key" onClick={() => setConfirmDelete(k.MvaID)} style={{ display:"flex", alignItems:"center", gap:4 }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                        Delete
-                      </button>
-                    )}
+
                   </div>
                 </td>
               </tr>
@@ -613,11 +678,14 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
 }
 
 // ─── Key Detail ───────────────────────────────────────────────────────────────
-function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, markLost, currentUser, canEdit, setView, notify }) {
+function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, markLost, updateNotes, currentUser, canEdit, setView, notify }) {
   const [checkoutModal, setCheckoutModal] = useState(false);
   const [checkinModal, setCheckinModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLost, setConfirmLost] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesInput, setNotesInput] = useState("");
+
   if (!keyData) return <div style={{ color:"#64748b", padding:40 }}>Key not found.</div>;
 
   const keyHistory = borrowing.filter(b => b.MvaID === keyData.MvaID).sort((a,b) => b.eventDT > a.eventDT ? 1 : -1);
@@ -640,7 +708,22 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
           <InfoRow label="Status" value={<span className="tag" style={{ background: STATUS_COLOR[keyData.status] + "22", color: STATUS_COLOR[keyData.status] }}>{keyData.status}</span>} />
           <InfoRow label="Location" value={keyData.location} />
           <InfoRow label="# of Keys" value={keyData.numKeys || "—"} />
-          <InfoRow label="Notes" value={keyData.notes || "—"} />
+          <InfoRow label="Notes" value={
+            editingNotes ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                <textarea className="input" value={notesInput} onChange={e => setNotesInput(e.target.value)} rows={3} style={{ fontSize:12, resize:"vertical" }} autoFocus />
+                <div style={{ display:"flex", gap:6 }}>
+                  <button className="btn btn-primary btn-sm" onClick={() => { updateNotes(keyData.MvaID, notesInput); setEditingNotes(false); }}>Save</button>
+                  <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={() => setEditingNotes(false)}>Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <span style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span>{keyData.notes || <span style={{ color:"#475569" }}>—</span>}</span>
+                {canEdit && <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none", padding:"2px 8px", fontSize:10 }} onClick={() => { setNotesInput(keyData.notes || ""); setEditingNotes(true); }}>Edit</button>}
+              </span>
+            )
+          } />
           <InfoRow label="Added" value={fmtDT(keyData.dateAdded)} />
           <InfoRow label="Added By" value={keyData.addedBy} />
           {(keyData.status === "Checked Out" || keyData.status === "Lost") && daysOut !== null && (
@@ -777,94 +860,27 @@ function AuditLog({ audit }) {
   );
 }
 
-// ─── Reports ──────────────────────────────────────────────────────────────────
-function Reports({ keys, borrowing }) {
-  const checkedOut = keys.filter(k => k.status === "Checked Out");
-
-  const rows = checkedOut.map(k => {
-    const lastCheckout = [...borrowing].filter(b => b.MvaID === k.MvaID && b.action === "Checked Out").sort((a,b) => b.eventDT > a.eventDT ? 1 : -1)[0];
-    return {
-      MvaID: k.MvaID,
-      borrower: k.lastBorrower || "",
-      checkedOutDate: lastCheckout?.eventDT || "",
-      status: k.status,
-      daysOut: lastCheckout ? daysSince(lastCheckout.eventDT) : 0,
-      lastUpdated: k.lastUpdated,
-      lastUpdatedBy: k.lastUpdatedBy,
-    };
-  }).sort((a,b) => b.daysOut - a.daysOut);
-
-  const downloadCSV = () => {
-    const headers = ["Key ID","Checked Out To","Checked Out Date","Status","Days Outstanding","Last Updated Date","Last Updated By"];
-    const csvRows = [headers, ...rows.map(r => [r.MvaID, r.borrower, fmtDT(r.checkedOutDate), r.status, r.daysOut, fmtDT(r.lastUpdated), r.lastUpdatedBy])];
-    const csv = csvRows.map(row => row.map(csvEscape).join(",")).join("\n");
-    const a = document.createElement("a");
-    a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-    a.download = `keys-checked-out-${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
-
-  const downloadFull = () => {
-    const headers = ["MvaID","Current Status","Assigned Location","Number of Keys","Last Updated DateTime","Last Updated By Name","Last Known Borrower Name"];
-    const csvRows = [headers, ...keys.map(k => [k.MvaID, k.status, k.location, k.numKeys || "", fmtDT(k.lastUpdated), k.lastUpdatedBy, k.lastBorrower || ""])];
-    const csv = csvRows.map(row => row.map(csvEscape).join(",")).join("\n");
-    const a = document.createElement("a");
-    a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-    a.download = `full-inventory-${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
-
-  return (
-    <div>
-      <PageHeader title="Reports" subtitle="Download CSV reports" />
-
-      <div style={{ display:"flex", gap:12, marginBottom:24 }}>
-        <button className="btn btn-primary" onClick={downloadCSV}>⬇ Checked Out Keys Report</button>
-        <button className="btn btn-ghost" onClick={downloadFull}>⬇ Full Inventory Export</button>
-      </div>
-
-      <div className="card" style={{ padding:0, overflow:"hidden" }}>
-        <div style={{ padding:"16px 20px", borderBottom:"1px solid #1e293b", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <span style={{ fontSize:13, color:"#94a3b8" }}>Currently Checked Out Keys — {rows.length} records</span>
-          {rows.some(r => r.daysOut > 1) && <span style={{ fontSize:12, color:"#ef4444" }}>⚠ {rows.filter(r => r.daysOut > 1).length} overdue</span>}
-        </div>
-        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-          <thead><tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
-            {["Key ID","Checked Out To","Date","Days Out","Last Updated By"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase", letterSpacing:".06em" }}>{h}</th>)}
-          </tr></thead>
-          <tbody>
-            {rows.map(r => (
-              <tr key={r.MvaID} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
-                <td style={{ padding:"10px 16px", color:"#60a5fa", fontFamily:"'DM Mono',monospace" }}>{r.MvaID}</td>
-                <td style={{ padding:"10px 16px", color:"#94a3b8" }}>{r.borrower || "—"}</td>
-                <td style={{ padding:"10px 16px", color:"#64748b", fontSize:11 }}>{fmtDT(r.checkedOutDate)}</td>
-                <td style={{ padding:"10px 16px" }}>
-                  <span style={{ color: r.daysOut > 1 ? "#ef4444" : r.daysOut === 1 ? "#f59e0b" : "#94a3b8" }}>
-                    {r.daysOut}d {r.daysOut > 1 ? "⚠" : ""}
-                  </span>
-                </td>
-                <td style={{ padding:"10px 16px", color:"#64748b" }}>{r.lastUpdatedBy}</td>
-              </tr>
-            ))}
-            {rows.length === 0 && <tr><td colSpan={5} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No keys currently checked out</td></tr>}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 // ─── Users (Admin) ────────────────────────────────────────────────────────────
 function UsersView({ users, setUsers, notify }) {
   const [name, setName] = useState("");
   const [role, setRole] = useState("Librarian");
-  const [confirmRemove, setConfirmRemove] = useState(null); // user id
+  const [confirmRemove, setConfirmRemove] = useState(null);
+  const [editUser, setEditUser] = useState(null); // user object being edited
 
   const addUser = () => {
     if (!name.trim()) return notify("Name required", "error");
     if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) return notify("User already exists", "error");
-    setUsers(u => [...u, { id: uuid(), name: name.trim(), role }]);
+    setUsers(u => [...u, { id: uuid(), name: name.trim(), role, email: "", password: "" }]);
     setName(""); notify("User added");
+  };
+
+  const saveEdit = (updated) => {
+    if (!updated.name.trim()) return notify("Name required", "error");
+    const conflict = users.find(u => u.id !== updated.id && u.name.toLowerCase() === updated.name.toLowerCase());
+    if (conflict) return notify("Name already in use", "error");
+    setUsers(us => us.map(u => u.id === updated.id ? updated : u));
+    setEditUser(null);
+    notify("User updated");
   };
 
   return (
@@ -883,16 +899,18 @@ function UsersView({ users, setUsers, notify }) {
       <div className="card" style={{ padding:0, overflow:"hidden" }}>
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead><tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
-            {["Name","Role","Actions"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
+            {["Name","Email","Role","Actions"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
           </tr></thead>
           <tbody>
             {users.map(u => (
               <tr key={u.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
                 <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>{u.name}</td>
+                <td style={{ padding:"12px 16px", color:"#94a3b8" }}>{u.email || <span style={{ color:"#475569" }}>—</span>}</td>
                 <td style={{ padding:"12px 16px" }}>
                   <span className="tag" style={{ background:"#1e293b", color:"#94a3b8" }}>{u.role}</span>
                 </td>
-                <td style={{ padding:"12px 16px" }}>
+                <td style={{ padding:"12px 16px", display:"flex", gap:8 }}>
+                  <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => setEditUser({...u})}>Edit</button>
                   <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(u.id)}>Remove</button>
                 </td>
               </tr>
@@ -900,16 +918,56 @@ function UsersView({ users, setUsers, notify }) {
           </tbody>
         </table>
       </div>
+
+      {/* Edit User Modal */}
+      {editUser && <EditUserModal user={editUser} setUser={setEditUser} onSave={saveEdit} onClose={() => setEditUser(null)} />}
+
       {confirmRemove && (
         <ConfirmModal
           title="Remove User"
           message={`Remove user "${users.find(u => u.id === confirmRemove)?.name}"? They will no longer be able to log in.`}
           confirmLabel="Remove User"
           danger={true}
-          onConfirm={() => setUsers(us => us.filter(x => x.id !== confirmRemove))}
+          onConfirm={() => { setUsers(us => us.filter(x => x.id !== confirmRemove)); setConfirmRemove(null); }}
           onClose={() => setConfirmRemove(null)}
         />
       )}
+    </div>
+  );
+}
+
+function EditUserModal({ user, setUser, onSave, onClose }) {
+  const [showPw, setShowPw] = useState(false);
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }}>
+      <div className="card" style={{ width:420, maxWidth:"90vw" }}>
+        <h2 style={{ fontSize:16, fontWeight:700, color:"#e2e8f0", marginBottom:20 }}>Edit User</h2>
+        <div className="form-group">
+          <label className="form-label">Name *</label>
+          <input className="input" value={user.name} onChange={e => setUser(u => ({...u, name: e.target.value}))} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Email</label>
+          <input className="input" type="email" value={user.email || ""} onChange={e => setUser(u => ({...u, email: e.target.value}))} placeholder="user@example.com" />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <div style={{ display:"flex", gap:8 }}>
+            <input className="input" type={showPw ? "text" : "password"} value={user.password || ""} onChange={e => setUser(u => ({...u, password: e.target.value}))} placeholder="Set password" style={{ flex:1 }} />
+            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>{showPw ? "Hide" : "Show"}</button>
+          </div>
+        </div>
+        <div className="form-group">
+          <label className="form-label">Role</label>
+          <select className="input" value={user.role} onChange={e => setUser(u => ({...u, role: e.target.value}))}>
+            {ROLES.map(r => <option key={r}>{r}</option>)}
+          </select>
+        </div>
+        <div style={{ display:"flex", gap:8, justifyContent:"flex-end", marginTop:8 }}>
+          <button className="btn" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={() => onSave(user)}>Save Changes</button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1076,9 +1134,9 @@ function ImportModal({ onImport, onClose, notify }) {
   const SAMPLE_ROWS = [
     ["10000001", "Stone Mountain Hub", "Checked In", "1"],
     ["10000002", "Stone Mountain Hub", "Checked Out", "1"],
-    ["10000003", "Aux Lot – Rock Chapel", "Checked In", "2"],
-    ["10000004", "Aux Lot – Jabco", "Lost", "1"],
-    ["10000005", "Off-site Vended", "Checked In", "3"],
+    ["10000003", "With Customer", "Checked In", "2"],
+    ["10000004", "Off Site Vendor", "Lost", "1"],
+    ["10000005", "Off Site Vendor", "Checked In", "3"],
     ["10000006", "With Customer", "Checked Out", ""],
   ];
   const sampleCSV = [SAMPLE_HEADERS, ...SAMPLE_ROWS].map(row => row.join(",")).join("\n");
