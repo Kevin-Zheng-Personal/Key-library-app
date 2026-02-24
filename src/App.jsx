@@ -179,7 +179,9 @@ export default function App() {
       setReasonCodes(rc || seedReasonCodes());
       setLocations(locs || seedLocations());
       const loadedUsers = u || seedUsers();
-      setCurrentUser(loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
+      const savedUserId = localStorage.getItem("currentUserId");
+      const restoredUser = savedUserId ? loadedUsers.find(u => u.id === savedUserId) : null;
+      setCurrentUser(restoredUser || loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
       setLoaded(true);
       setTimeout(() => setSaveEnabled(true), 300);
     })();
@@ -221,6 +223,9 @@ export default function App() {
       saveCollection(STORAGE_KEYS.locations, locations);
     }
   }, [locations, saveEnabled]);
+  useEffect(() => {
+    if (currentUser) localStorage.setItem("currentUserId", currentUser.id);
+  }, [currentUser]);
 
   const notify = useCallback((msg, type = "success") => {
     setNotification({ msg, type });
