@@ -70,7 +70,7 @@ async function saveCollection(collName, records) {
   }
 }
 
-const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users" };
+const STORAGE_KEYS = { keys: "keys", borrowing: "borrowing", audit: "audit", users: "users", reasonCodes: "reasonCodes" };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STATUSES = ["Checked In", "Checked Out", "Lost", "Deactivated"];
@@ -127,6 +127,15 @@ function seedUsers() {
   ];
 }
 
+function seedReasonCodes() {
+  return [
+    { id: "rc1", label: "Zone Flow" },
+    { id: "rc2", label: "Shuttling" },
+    { id: "rc3", label: "Cleaning" },
+    { id: "rc4", label: "Customer Pickup" },
+  ];
+}
+
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [loaded, setLoaded] = useState(false);
@@ -134,6 +143,7 @@ export default function App() {
   const [borrowing, setBorrowing] = useState([]);
   const [audit, setAudit] = useState([]);
   const [users, setUsers] = useState([]);
+  const [reasonCodes, setReasonCodes] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [view, setView] = useState("dashboard");
   const [selectedKey, setSelectedKey] = useState(null);
@@ -146,17 +156,19 @@ export default function App() {
   useEffect(() => {
     (async () => {
       console.log("[Firebase] Loading collections...");
-      const [k, b, a, u] = await Promise.all([
+      const [k, b, a, u, rc] = await Promise.all([
         loadCollection(STORAGE_KEYS.keys),
         loadCollection(STORAGE_KEYS.borrowing),
         loadCollection(STORAGE_KEYS.audit),
         loadCollection(STORAGE_KEYS.users),
+        loadCollection(STORAGE_KEYS.reasonCodes),
       ]);
-      console.log("[Firebase] keys:", k?.length, "borrowing:", b?.length, "audit:", a?.length, "users:", u?.length);
+      console.log("[Firebase] keys:", k?.length, "borrowing:", b?.length, "audit:", a?.length, "users:", u?.length, "reasonCodes:", rc?.length);
       setKeys(k || seedKeys());
       setBorrowing(b || seedBorrowing());
       setAudit(a || seedAudit());
       setUsers(u || seedUsers());
+      setReasonCodes(rc || seedReasonCodes());
       const loadedUsers = u || seedUsers();
       setCurrentUser(loadedUsers.find(u => u.name === "Alice") || loadedUsers[0]);
       setLoaded(true);
@@ -182,12 +194,18 @@ export default function App() {
       saveCollection(STORAGE_KEYS.audit, audit);
     }
   }, [audit, saveEnabled]);
-  useEffect(() => { 
+  useEffect(() => {
     if (saveEnabled) {
       console.log("[Firebase] Saving users:", users.length);
       saveCollection(STORAGE_KEYS.users, users);
     }
   }, [users, saveEnabled]);
+  useEffect(() => {
+    if (saveEnabled) {
+      console.log("[Firebase] Saving reasonCodes:", reasonCodes.length);
+      saveCollection(STORAGE_KEYS.reasonCodes, reasonCodes);
+    }
+  }, [reasonCodes, saveEnabled]);
 
   const notify = useCallback((msg, type = "success") => {
     setNotification({ msg, type });
@@ -225,7 +243,7 @@ export default function App() {
     notify("Key deleted and logged in audit history");
   }, [currentUser, addAudit, notify]);
 
-  const checkOut = useCallback((MvaID, borrowerName, librarianName) => {
+  const checkOut = useCallback((MvaID, borrowerName, librarianName, reasonCode) => {
     const key = keys.find(k => k.MvaID === MvaID);
     if (!key || key.status !== "Checked In") return notify("Key is not available for checkout", "error");
     // Count existing checkouts for borrower (excluding With Customer)
@@ -235,9 +253,9 @@ export default function App() {
     setKeys(k => k.map(key => key.MvaID === MvaID
       ? { ...key, status: "Checked Out", lastUpdated: now(), lastUpdatedBy: librarianName, lastBorrower: borrowerName }
       : key));
-    const record = { id: uuid(), MvaID, action: "Checked Out", librarianName, borrowerName, eventDT: now() };
+    const record = { id: uuid(), MvaID, action: "Checked Out", librarianName, borrowerName, reasonCode: reasonCode || "", eventDT: now() };
     setBorrowing(b => [...b, record]);
-    addAudit(MvaID, `Checked Out to ${borrowerName} by ${librarianName}`, librarianName);
+    addAudit(MvaID, `Checked Out to ${borrowerName} by ${librarianName} — Reason: ${reasonCode || "N/A"}`, librarianName);
     notify(`Key ${MvaID} checked out to ${borrowerName}`);
   }, [keys, addAudit, notify]);
 
@@ -358,16 +376,19 @@ export default function App() {
         {/* Main Content */}
         <main style={{ flex:1, overflow:"auto", padding:"28px", minWidth:0, width:0 }}>
           {view === "dashboard" && (
-            <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} />
+            <Dashboard keys={keys} borrowing={borrowing} addKey={addKey} removeKey={removeKey} bulkImport={bulkImport} setSelectedKey={setSelectedKey} setView={setView} canEdit={canEdit} checkOut={checkOut} checkIn={checkIn} currentUser={currentUser} notify={notify} reasonCodes={reasonCodes} />
           )}
           {view === "detail" && selectedKey && (
-            <KeyDetail keyData={keys.find(k => k.MvaID === selectedKey)} borrowing={borrowing} audit={audit} checkOut={checkOut} checkIn={checkIn} removeKey={removeKey} markLost={markLost} updateNotes={updateNotes} currentUser={currentUser} canEdit={canEdit} setView={setView} notify={notify} />
+            <KeyDetail keyData={keys.find(k => k.MvaID === selectedKey)} borrowing={borrowing} audit={audit} checkOut={checkOut} checkIn={checkIn} removeKey={removeKey} markLost={markLost} updateNotes={updateNotes} currentUser={currentUser} canEdit={canEdit} setView={setView} notify={notify} reasonCodes={reasonCodes} />
           )}
           {view === "audit" && (
             <AuditLog audit={audit} />
           )}
           {view === "users" && currentUser?.role === "Admin" && (
             <UsersView users={users} setUsers={setUsers} notify={notify} />
+          )}
+          {view === "reasoncodes" && currentUser?.role === "Admin" && (
+            <ReasonCodesView reasonCodes={reasonCodes} setReasonCodes={setReasonCodes} notify={notify} />
           )}
         </main>
       </div>
@@ -385,7 +406,10 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
   const navItems = [
     { id: "dashboard", icon: "⬡", label: "Key Inventory" },
     { id: "audit", icon: "◈", label: "Audit Log" },
-    ...(currentUser?.role === "Admin" ? [{ id: "users", icon: "◉", label: "Users" }] : []),
+    ...(currentUser?.role === "Admin" ? [
+      { id: "users", icon: "◉", label: "Users" },
+      { id: "reasoncodes", icon: "◧", label: "Reason Codes" },
+    ] : []),
   ];
 
   const handleUserChange = (e) => {
@@ -470,7 +494,7 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
 }
 
 // ─── Dashboard (merged with Inventory) ───────────────────────────────────────
-function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelectedKey, setView, canEdit, checkOut, checkIn, currentUser, notify }) {
+function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelectedKey, setView, canEdit, checkOut, checkIn, currentUser, notify, reasonCodes }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(new Set(["Checked In", "Checked Out", "Lost"]));
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -786,7 +810,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
       {showAdd && <AddKeyModal onAdd={(d) => { addKey(d); setShowAdd(false); }} onClose={() => setShowAdd(false)} />}
       {showImport && <ImportModal onImport={bulkImport} onClose={() => setShowImport(false)} notify={notify} />}
       {showExport && <ExportModal filteredKeys={filtered} borrowing={borrowing} onClose={() => setShowExport(false)} />}
-      {checkoutModal && <CheckOutModal MvaID={checkoutModal} currentUser={currentUser} checkOut={checkOut} onClose={() => setCheckoutModal(null)} />}
+      {checkoutModal && <CheckOutModal MvaID={checkoutModal} currentUser={currentUser} checkOut={checkOut} reasonCodes={reasonCodes} onClose={() => setCheckoutModal(null)} />}
       {checkinModal && <CheckInModal MvaID={checkinModal} currentUser={currentUser} checkIn={checkIn} onClose={() => setCheckinModal(null)} />}
       {confirmDelete && (
         <ConfirmModal
@@ -803,7 +827,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
 }
 
 // ─── Key Detail ───────────────────────────────────────────────────────────────
-function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, markLost, updateNotes, currentUser, canEdit, setView, notify }) {
+function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, markLost, updateNotes, currentUser, canEdit, setView, notify, reasonCodes }) {
   const [checkoutModal, setCheckoutModal] = useState(false);
   const [checkinModal, setCheckinModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -893,7 +917,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
         {keyHistory.length === 0 ? <p style={{ color:"#475569", fontSize:13 }}>No transaction history.</p> : (
           <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
             <thead><tr style={{ borderBottom:"1px solid #1e293b" }}>
-              {["Action","Librarian","Borrower","Date"].map(h => <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
+              {["Action","Librarian","Borrower","Reason","Date"].map(h => <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
             </tr></thead>
             <tbody>
               {keyHistory.map(h => (
@@ -901,6 +925,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
                   <td style={{ padding:"8px 12px" }}><span className="tag" style={{ background: h.action === "Checked Out" ? "#f59e0b22" : "#22c55e22", color: h.action === "Checked Out" ? "#f59e0b" : "#22c55e" }}>{h.action}</span></td>
                   <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.librarianName}</td>
                   <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.borrowerName || "—"}</td>
+                  <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.reasonCode || <span style={{ color:"#475569" }}>—</span>}</td>
                   <td style={{ padding:"8px 12px", color:"#64748b", fontSize:11 }}>{fmtDT(h.eventDT)}</td>
                 </tr>
               ))}
@@ -927,7 +952,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
         )}
       </div>
 
-      {checkoutModal && <CheckOutModal MvaID={keyData.MvaID} currentUser={currentUser} checkOut={checkOut} onClose={() => setCheckoutModal(false)} />}
+      {checkoutModal && <CheckOutModal MvaID={keyData.MvaID} currentUser={currentUser} checkOut={checkOut} reasonCodes={reasonCodes} onClose={() => setCheckoutModal(false)} />}
       {checkinModal && <CheckInModal MvaID={keyData.MvaID} currentUser={currentUser} checkIn={checkIn} onClose={() => setCheckinModal(false)} />}
       {confirmLost && (
         <ConfirmModal
@@ -1061,6 +1086,121 @@ function UsersView({ users, setUsers, notify }) {
   );
 }
 
+// ─── Reason Codes (Admin) ─────────────────────────────────────────────────────
+function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
+  const [newLabel, setNewLabel] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [confirmRemove, setConfirmRemove] = useState(null);
+
+  const addReasonCode = () => {
+    const trimmed = newLabel.trim();
+    if (!trimmed) return notify("Label required", "error");
+    if (reasonCodes.find(rc => rc.label.toLowerCase() === trimmed.toLowerCase())) return notify("Reason code already exists", "error");
+    setReasonCodes(prev => [...prev, { id: uuid(), label: trimmed }]);
+    setNewLabel("");
+    notify("Reason code added");
+  };
+
+  const startEdit = (rc) => {
+    setEditId(rc.id);
+    setEditLabel(rc.label);
+  };
+
+  const saveEdit = (id) => {
+    const trimmed = editLabel.trim();
+    if (!trimmed) return notify("Label required", "error");
+    const conflict = reasonCodes.find(rc => rc.id !== id && rc.label.toLowerCase() === trimmed.toLowerCase());
+    if (conflict) return notify("Reason code already exists", "error");
+    setReasonCodes(prev => prev.map(rc => rc.id === id ? { ...rc, label: trimmed } : rc));
+    setEditId(null);
+    notify("Reason code updated");
+  };
+
+  const removeReasonCode = (id) => {
+    setReasonCodes(prev => prev.filter(rc => rc.id !== id));
+    setConfirmRemove(null);
+    notify("Reason code removed");
+  };
+
+  return (
+    <div>
+      <PageHeader title="Reason Codes" subtitle="Manage checkout reason codes picklist" />
+      <div className="card" style={{ maxWidth:500, marginBottom:24 }}>
+        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Add Reason Code</h3>
+        <div className="form-group">
+          <label className="form-label">Label</label>
+          <input
+            className="input"
+            value={newLabel}
+            onChange={e => setNewLabel(e.target.value)}
+            placeholder="e.g. Zone Flow"
+            onKeyDown={e => e.key === "Enter" && addReasonCode()}
+          />
+        </div>
+        <button className="btn btn-primary" onClick={addReasonCode}>Add Reason Code</button>
+      </div>
+
+      <div className="card" style={{ padding:0, overflow:"hidden", maxWidth:500 }}>
+        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+          <thead>
+            <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
+              {["Reason Code","Actions"].map(h => (
+                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {reasonCodes.map(rc => (
+              <tr key={rc.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
+                <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>
+                  {editId === rc.id ? (
+                    <input
+                      className="input"
+                      value={editLabel}
+                      onChange={e => setEditLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") saveEdit(rc.id); if (e.key === "Escape") setEditId(null); }}
+                      autoFocus
+                      style={{ maxWidth:280 }}
+                    />
+                  ) : rc.label}
+                </td>
+                <td style={{ padding:"12px 16px", display:"flex", gap:8 }}>
+                  {editId === rc.id ? (
+                    <>
+                      <button className="btn btn-sm btn-primary" onClick={() => saveEdit(rc.id)}>Save</button>
+                      <button className="btn btn-sm btn-ghost" onClick={() => setEditId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => startEdit(rc)}>Edit</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(rc.id)}>Remove</button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {reasonCodes.length === 0 && (
+              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No reason codes defined</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {confirmRemove && (
+        <ConfirmModal
+          title="Remove Reason Code"
+          message={`Remove "${reasonCodes.find(rc => rc.id === confirmRemove)?.label}"? This will not affect existing checkout records.`}
+          confirmLabel="Remove"
+          danger={true}
+          onConfirm={() => removeReasonCode(confirmRemove)}
+          onClose={() => setConfirmRemove(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 function EditUserModal({ user, setUser, onSave, onClose }) {
   const [showPw, setShowPw] = useState(false);
   return (
@@ -1183,19 +1323,32 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
   );
 }
 
-function CheckOutModal({ MvaID, currentUser, checkOut, onClose }) {
+function CheckOutModal({ MvaID, currentUser, checkOut, reasonCodes, onClose }) {
   const [librarian, setLibrarian] = useState(currentUser?.name || "");
   const [borrower, setBorrower] = useState("");
-  const submit = () => { if (!librarian || !borrower) return; checkOut(MvaID, borrower, librarian); onClose(); };
+  const [reasonCode, setReasonCode] = useState("");
+  const submit = () => {
+    if (!librarian || !borrower) return;
+    if (!reasonCode) return;
+    checkOut(MvaID, borrower, librarian, reasonCode);
+    onClose();
+  };
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", marginBottom:20, fontSize:18 }}>Check Out Key {MvaID}</h2>
         <div className="form-group"><label className="form-label">Librarian Name *</label><input className="input" value={librarian} onChange={e => setLibrarian(e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Borrower Name *</label><input className="input" value={borrower} onChange={e => setBorrower(e.target.value)} placeholder="Who is borrowing this key?" /></div>
+        <div className="form-group">
+          <label className="form-label">Reason Code *</label>
+          <select className="input" value={reasonCode} onChange={e => setReasonCode(e.target.value)}>
+            <option value="">— Select a reason —</option>
+            {(reasonCodes || []).map(rc => <option key={rc.id} value={rc.label}>{rc.label}</option>)}
+          </select>
+        </div>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:20 }}>
           <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-warning" onClick={submit}>Check Out</button>
+          <button className="btn btn-warning" onClick={submit} disabled={!librarian || !borrower || !reasonCode} style={{ opacity: (!librarian || !borrower || !reasonCode) ? 0.5 : 1 }}>Check Out</button>
         </div>
       </div>
     </div>
