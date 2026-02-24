@@ -1412,6 +1412,17 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
   });
   const csv = [headers, ...rows].map(r => r.map(csvEscape).join(",")).join("\n");
 
+  const download = () => {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `key-inventory-${date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const copy = () => {
     navigator.clipboard.writeText(csv).then(() => {
       setCopied(true);
@@ -1421,37 +1432,28 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth:680 }} onClick={e => e.stopPropagation()}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-          <div>
-            <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:18, marginBottom:2 }}>Export CSV</h2>
-            <p style={{ fontSize:12, color:"#64748b" }}>{filteredKeys.length} rows — paste into Excel, Google Sheets, or save as .csv</p>
-          </div>
+      <div className="modal" style={{ maxWidth:440 }} onClick={e => e.stopPropagation()}>
+        <h2 style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:18, marginBottom:6 }}>Export CSV</h2>
+        <p style={{ fontSize:12, color:"#64748b", marginBottom:28 }}>{filteredKeys.length} row{filteredKeys.length !== 1 ? "s" : ""} ready to export</p>
+
+        <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
+          <button className="btn btn-primary" onClick={download} style={{ justifyContent:"center", padding:"12px 16px" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download key-inventory.csv
+          </button>
           <button
             className="btn btn-ghost"
             onClick={copy}
-            style={{ display:"flex", alignItems:"center", gap:6, color: copied ? "#22c55e" : undefined, borderColor: copied ? "#22c55e44" : undefined, flexShrink:0 }}
+            style={{ justifyContent:"center", padding:"12px 16px", color: copied ? "#22c55e" : undefined, borderColor: copied ? "#22c55e44" : undefined }}
           >
             {copied
-              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!</>
-              : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy All</>
+              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard!</>
+              : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy to clipboard</>
             }
           </button>
         </div>
 
-        <textarea
-          readOnly
-          value={csv}
-          onClick={e => e.target.select()}
-          style={{
-            width:"100%", height:320, background:"#080c18", border:"1px solid #1e293b", borderRadius:8,
-            color:"#94a3b8", fontFamily:"'DM Mono',monospace", fontSize:11, padding:"12px 14px",
-            resize:"none", lineHeight:1.6, outline:"none"
-          }}
-        />
-        <p style={{ fontSize:11, color:"#475569", marginTop:8 }}>Click inside to select all, then Ctrl+C / Cmd+C — or use Copy All above.</p>
-
-        <div style={{ display:"flex", justifyContent:"flex-end", marginTop:16 }}>
+        <div style={{ display:"flex", justifyContent:"flex-end" }}>
           <button className="btn btn-ghost" onClick={onClose}>Close</button>
         </div>
       </div>
