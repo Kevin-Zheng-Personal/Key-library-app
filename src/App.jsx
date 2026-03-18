@@ -77,12 +77,12 @@ const STATUSES = ["Checked In", "Checked Out", "With Customer", "With Off Site V
 const ROLES = ["Admin", "Librarian", "Viewer"];
 
 const STATUS_COLOR = {
-  "Checked In": "#22c55e",
-  "Checked Out": "#f59e0b",
-  "With Customer": "#06b6d4",
-  "With Off Site Vendor": "#8b5cf6",
-  "Lost": "#ef4444",
-  "Deactivated": "#94a3b8",
+  "Checked In": "#24A87C",
+  "Checked Out": "#C5B207",
+  "With Customer": "#25BCB6",
+  "With Off Site Vendor": "#4249FF",
+  "Lost": "#E43660",
+  "Deactivated": "#9B9FA6",
 };
 
 function uuid() { return Math.random().toString(36).slice(2, 10).toUpperCase(); }
@@ -345,45 +345,45 @@ export default function App() {
     notify(`Imported ${added} keys. Skipped ${skipped} duplicates/invalid.`);
   }, [keys, locations, currentUser, notify]);
 
-  if (!loaded) return <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", background:"#0a0e1a", color:"#64748b", fontFamily:"'Roboto',sans-serif", fontSize:"18px" }}>Loading Key Library...</div>;
+  if (!loaded) return <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", background:"#F9FAFA", color:"#9B9FA6", fontFamily:"'Inter',sans-serif", fontSize:"16px", fontWeight:500 }}>Loading Key Library...</div>;
 
   const canEdit = currentUser && (currentUser.role === "Admin" || currentUser.role === "Librarian");
 
   return (
-    <div style={{ height:"100vh", width:"100vw", background:"#0a0e1a", color:"#e2e8f0", fontFamily:"'Roboto', sans-serif", display:"flex", flexDirection:"row", overflow:"hidden" }}>
+    <div style={{ height:"100vh", width:"100vw", background:"#F9FAFA", color:"#22252A", fontFamily:"'Inter', sans-serif", display:"flex", flexDirection:"row", overflow:"hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@400;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f1629; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: #F4F5F6; }
+        ::-webkit-scrollbar-thumb { background: #DDDFE4; border-radius: 3px; }
         input, select, textarea { outline: none; }
         button { cursor: pointer; }
-        .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:6px; border:none; font-family:'Roboto',sans-serif; font-size:12px; font-weight:500; transition:all .15s; letter-spacing:.05em; }
-        .btn-primary { background:#3b82f6; color:#fff; }
-        .btn-primary:hover { background:#2563eb; }
-        .btn-success { background:#22c55e; color:#000; }
-        .btn-success:hover { background:#16a34a; }
-        .btn-warning { background:#f59e0b; color:#000; }
-        .btn-warning:hover { background:#d97706; }
-        .btn-danger { background:#ef4444; color:#fff; }
-        .btn-danger:hover { background:#dc2626; }
-        .btn-ghost { background:transparent; color:#94a3b8; border:1px solid #1e293b; }
-        .btn-ghost:hover { background:#1e293b; color:#e2e8f0; }
-        .btn-sm { padding:5px 10px; font-size:11px; }
-        .card { background:#0f1629; border:1px solid #1e293b; border-radius:10px; padding:20px; }
-        .input { background:#0a0e1a; border:1px solid #1e293b; border-radius:6px; color:#e2e8f0; padding:8px 12px; font-family:'Roboto',sans-serif; font-size:13px; width:100%; transition:border .15s; }
-        .input:focus { border-color:#3b82f6; }
-        .tag { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:500; letter-spacing:.04em; }
-        .nav-item { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; cursor:pointer; transition:all .15s; font-size:13px; color:#64748b; border:none; background:none; width:100%; text-align:left; font-family:inherit; }
-        .nav-item:hover { background:#0f1629; color:#94a3b8; }
-        .nav-item.active { background:#1e293b; color:#3b82f6; }
-        .table-row:hover { background:#111827; }
-        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-        .modal { background:#0f1629; border:1px solid #1e293b; border-radius:12px; padding:28px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; }
-        .stat-card { background:#0f1629; border:1px solid #1e293b; border-radius:10px; padding:20px 24px; }
+        .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; border:none; font-family:'Inter',sans-serif; font-size:13px; font-weight:500; transition:all .2s cubic-bezier(0.4,0,0.2,1); letter-spacing:.01em; }
+        .btn-primary { background:#2A00A5; color:#fff; }
+        .btn-primary:hover { background:#3A00E5; }
+        .btn-success { background:#24A87C; color:#fff; }
+        .btn-success:hover { background:#197355; }
+        .btn-warning { background:#FCF7DE; color:#C5B207; border:1px solid #C5B20744; }
+        .btn-warning:hover { background:#C5B207; color:#fff; }
+        .btn-danger { background:#FCE8F0; color:#E43660; border:1px solid #E4366044; }
+        .btn-danger:hover { background:#E43660; color:#fff; }
+        .btn-ghost { background:transparent; color:#737982; border:1px solid #DDDFE4; }
+        .btn-ghost:hover { background:#F4F5F6; color:#22252A; border-color:#B8BCC2; }
+        .btn-sm { padding:5px 10px; font-size:12px; }
+        .card { background:#FFFFFF; border:1px solid #DDDFE4; border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+        .input { background:#FFFFFF; border:1px solid #DDDFE4; border-radius:8px; color:#22252A; padding:8px 12px; font-family:'Inter',sans-serif; font-size:13px; width:100%; transition:border .2s; }
+        .input:focus { border-color:#2A00A5; box-shadow:0 0 0 3px #EBEFFF; }
+        .tag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:9999px; font-size:11px; font-weight:600; letter-spacing:.03em; }
+        .nav-item { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:8px; cursor:pointer; transition:all .2s; font-size:13px; color:#8A95FF; border:none; background:none; width:100%; text-align:left; font-family:inherit; font-weight:500; }
+        .nav-item:hover { background:rgba(255,255,255,0.08); color:#FFFFFF; }
+        .nav-item.active { background:rgba(255,255,255,0.12); color:#FFFFFF; }
+        .table-row:hover { background:#F9FAFA; }
+        .modal-overlay { position:fixed; inset:0; background:rgba(11,12,14,.6); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; backdrop-filter:blur(4px); }
+        .modal { background:#FFFFFF; border:1px solid #DDDFE4; border-radius:16px; padding:28px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+        .stat-card { background:#FFFFFF; border:1px solid #DDDFE4; border-radius:12px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
         .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
-        .form-label { font-size:11px; color:#64748b; letter-spacing:.08em; text-transform:uppercase; }
+        .form-label { font-size:11px; color:#737982; letter-spacing:.08em; text-transform:uppercase; font-weight:600; }
         .table-wrap { width:100%; overflow-x:auto; }
         table { width:100%; min-width:600px; }
         .page-content { width:100%; max-width:100%; box-sizing:border-box; }
@@ -407,7 +407,7 @@ export default function App() {
 
       {/* Notification */}
       {notification && (
-        <div style={{ position:"fixed", top:20, right:20, zIndex:9999, background: notification.type === "error" ? "#7f1d1d" : "#14532d", border:`1px solid ${notification.type === "error" ? "#ef4444" : "#22c55e"}`, color:"#e2e8f0", padding:"12px 20px", borderRadius:8, fontSize:13, maxWidth:360 }}>
+        <div style={{ position:"fixed", top:20, right:20, zIndex:9999, background: notification.type === "error" ? "#FCE8F0" : "#E7F8F3", border:`1px solid ${notification.type === "error" ? "#E43660" : "#24A87C"}`, color: notification.type === "error" ? "#E43660" : "#197355", padding:"12px 20px", borderRadius:8, fontSize:13, fontWeight:500, maxWidth:360, boxShadow:"0 4px 12px rgba(0,0,0,0.1)" }}>
           {notification.msg}
         </div>
       )}
@@ -486,42 +486,42 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
   return (
     <>
       {/* ── Desktop Sidebar ─────────────────────────────────────── */}
-      <aside className="sidebar-desktop" style={{ width:220, background:"#080c18", borderRight:"1px solid #1e293b", display:"flex", flexDirection:"column", padding:"20px 12px 90px 12px", flexShrink:0, height:"100vh", position:"sticky", top:0, overflow:"hidden" }}>
+      <aside className="sidebar-desktop" style={{ width:220, background:"#0D0033", borderRight:"1px solid rgba(255,255,255,0.08)", display:"flex", flexDirection:"column", padding:"20px 12px 90px 12px", flexShrink:0, height:"100vh", position:"sticky", top:0, overflow:"hidden" }}>
         <div style={{ marginBottom:28, paddingLeft:6 }}>
-          <div style={{ fontSize:11, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4 }}>Key Library</div>
+          <div style={{ fontSize:11, color:"#8A95FF", letterSpacing:".15em", textTransform:"uppercase", marginBottom:4, fontWeight:600 }}>Key Library</div>
         </div>
         <nav style={{ display:"flex", flexDirection:"column", gap:2, flex:1, overflowY:"auto" }}>
           {navItems.map(item => (
             <button key={item.id} className={`nav-item ${view === item.id ? "active" : ""}`} onClick={() => setView(item.id)}>
               <span style={{ fontSize:14 }}>{item.icon}</span>
-              <span style={{ fontFamily:"'Roboto',sans-serif", fontSize:12 }}>{item.label}</span>
+              <span style={{ fontFamily:"'Inter',sans-serif", fontSize:13 }}>{item.label}</span>
             </button>
           ))}
         </nav>
-        <div style={{ borderTop:"1px solid #1e293b", position:"absolute", bottom:0, left:0, right:0, padding:"16px 12px", background:"#080c18" }}>
-          <div style={{ fontSize:10, color:"#475569", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em" }}>Logged in as</div>
-          <select className="input" style={{ fontSize:12, padding:"6px 10px" }} value={currentUser?.id} onChange={handleUserChange}>
+        <div style={{ borderTop:"1px solid rgba(255,255,255,0.08)", position:"absolute", bottom:0, left:0, right:0, padding:"16px 12px", background:"#0D0033" }}>
+          <div style={{ fontSize:10, color:"#5C6CFF", marginBottom:6, textTransform:"uppercase", letterSpacing:".08em", fontWeight:600 }}>Logged in as</div>
+          <select className="input" style={{ fontSize:12, padding:"6px 10px", background:"#1A0066", border:"1px solid rgba(255,255,255,0.12)", color:"#FFFFFF" }} value={currentUser?.id} onChange={handleUserChange}>
             {users.map(u => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
           </select>
-          <div style={{ marginTop:10, fontSize:10, color:"#334155", textAlign:"center", letterSpacing:".08em" }}>Beta v1.2</div>
+          <div style={{ marginTop:10, fontSize:10, color:"#3A3F46", textAlign:"center", letterSpacing:".08em" }}>Beta v1.2</div>
         </div>
       </aside>
 
       {/* ── Mobile Header ────────────────────────────────────────── */}
-      <header className="mobile-header" style={{ display:"none", position:"fixed", top:0, left:0, right:0, height:56, zIndex:300, background:"#080c18", borderBottom:"1px solid #1e293b", alignItems:"center", justifyContent:"space-between", padding:"0 16px", gap:12 }}>
-        <div style={{ fontSize:12, color:"#3b82f6", letterSpacing:".15em", textTransform:"uppercase", fontWeight:600, whiteSpace:"nowrap" }}>Key Library</div>
-        <select className="input" style={{ fontSize:13, padding:"7px 10px", width:"auto", maxWidth:190 }} value={currentUser?.id} onChange={handleUserChange}>
+      <header className="mobile-header" style={{ display:"none", position:"fixed", top:0, left:0, right:0, height:56, zIndex:300, background:"#0D0033", borderBottom:"1px solid rgba(255,255,255,0.08)", alignItems:"center", justifyContent:"space-between", padding:"0 16px", gap:12 }}>
+        <div style={{ fontSize:12, color:"#8A95FF", letterSpacing:".15em", textTransform:"uppercase", fontWeight:600, whiteSpace:"nowrap" }}>Key Library</div>
+        <select className="input" style={{ fontSize:13, padding:"7px 10px", width:"auto", maxWidth:190, background:"#1A0066", border:"1px solid rgba(255,255,255,0.12)", color:"#FFFFFF" }} value={currentUser?.id} onChange={handleUserChange}>
           {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
       </header>
 
       {/* ── Mobile Bottom Nav ────────────────────────────────────── */}
-      <nav className="mobile-nav" style={{ display:"none", position:"fixed", bottom:0, left:0, right:0, height:60, zIndex:300, background:"#080c18", borderTop:"1px solid #1e293b", alignItems:"stretch", overflowX:"auto" }}>
+      <nav className="mobile-nav" style={{ display:"none", position:"fixed", bottom:0, left:0, right:0, height:60, zIndex:300, background:"#0D0033", borderTop:"1px solid rgba(255,255,255,0.08)", alignItems:"stretch", overflowX:"auto" }}>
         {navItems.map(item => (
           <button
             key={item.id}
             onClick={() => setView(item.id)}
-            style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:3, flex:1, minWidth:64, padding:"6px 4px", border:"none", borderTop: view === item.id ? "2px solid #3b82f6" : "2px solid transparent", background:"none", color: view === item.id ? "#3b82f6" : "#64748b", cursor:"pointer", transition:"color .15s" }}
+            style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:3, flex:1, minWidth:64, padding:"6px 4px", border:"none", borderTop: view === item.id ? "2px solid #8A95FF" : "2px solid transparent", background:"none", color: view === item.id ? "#FFFFFF" : "#5C6CFF", cursor:"pointer", transition:"color .2s" }}
           >
             <span style={{ fontSize:17 }}>{item.icon}</span>
             <span style={{ fontSize:10, letterSpacing:".03em", whiteSpace:"nowrap" }}>{item.label}</span>
@@ -531,11 +531,11 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
 
       {/* Password Modal */}
       {pendingUser && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.65)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }}>
+        <div style={{ position:"fixed", inset:0, background:"rgba(11,12,14,.6)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, backdropFilter:"blur(4px)" }}>
           <div className="card" style={{ width:360, maxWidth:"90vw" }}>
-            <h2 style={{ fontSize:15, fontWeight:700, color:"#e2e8f0", marginBottom:6 }}>Sign In Required</h2>
-            <p style={{ fontSize:12, color:"#94a3b8", marginBottom:18 }}>
-              Enter the password for <strong style={{ color:"#e2e8f0" }}>{pendingUser.name}</strong> ({pendingUser.role})
+            <h2 style={{ fontSize:16, fontWeight:700, color:"#22252A", marginBottom:6 }}>Sign In Required</h2>
+            <p style={{ fontSize:13, color:"#737982", marginBottom:18 }}>
+              Enter the password for <strong style={{ color:"#22252A" }}>{pendingUser.name}</strong> ({pendingUser.role})
             </p>
             <div className="form-group">
               <label className="form-label">Password</label>
@@ -549,14 +549,14 @@ function Sidebar({ currentUser, users, setCurrentUser, view, setView }) {
                   autoFocus
                   style={{ flex:1 }}
                 />
-                <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>
+                <button className="btn btn-ghost btn-sm" style={{ whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>
                   {showPw ? "Hide" : "Show"}
                 </button>
               </div>
-              {pwError && <div style={{ color:"#f87171", fontSize:11, marginTop:6 }}>{pwError}</div>}
+              {pwError && <div style={{ color:"#E43660", fontSize:12, marginTop:6 }}>{pwError}</div>}
             </div>
             <div style={{ display:"flex", gap:8, justifyContent:"flex-end", marginTop:8 }}>
-              <button className="btn" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={() => setPendingUser(null)}>Cancel</button>
+              <button className="btn btn-ghost" onClick={() => setPendingUser(null)}>Cancel</button>
               <button className="btn btn-primary" onClick={submitPassword}>Sign In</button>
             </div>
           </div>
@@ -671,11 +671,11 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
       {/* Stats */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))", gap:12, marginBottom:28 }}>
         {[
-          { label:"Total Keys", val: active.length, color:"#3b82f6" },
-          { label:"Checked In", val: checkedIn, color:"#22c55e" },
-          { label:"Checked Out", val: checkedOut, color:"#f59e0b" },
-          { label:"Lost", val: lost, color:"#ef4444" },
-          { label:"Overdue (>1 day)", val: overdue, color:"#f97316" },
+          { label:"Total Keys", val: active.length, color:"#2A00A5" },
+          { label:"Checked In", val: checkedIn, color:"#24A87C" },
+          { label:"Checked Out", val: checkedOut, color:"#C5B207" },
+          { label:"Lost", val: lost, color:"#E43660" },
+          { label:"Overdue (>1 day)", val: overdue, color:"#E43660" },
         ].map(s => {
           const isActive = activeCard === s.label;
           return (
@@ -685,16 +685,16 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
               onClick={() => handleCardClick(s.label)}
               style={{
                 cursor:"pointer",
-                border: isActive ? `1px solid ${s.color}66` : "1px solid #1e293b",
-                background: isActive ? s.color + "11" : "#0f1629",
+                border: isActive ? `1px solid ${s.color}66` : "1px solid #DDDFE4",
+                background: isActive ? s.color + "11" : "#FFFFFF",
                 transition:"all .15s",
                 userSelect:"none",
               }}
               onMouseEnter={e => { if (!isActive) e.currentTarget.style.borderColor = s.color + "44"; }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = "#1e293b"; }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.borderColor = "#DDDFE4"; }}
             >
-              <div style={{ fontSize:11, color: isActive ? s.color : "#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:8, transition:"color .15s" }}>{s.label}</div>
-              <div style={{ fontSize:32, fontWeight:700, color:s.color, fontFamily:"'Roboto',sans-serif" }}>{s.val}</div>
+              <div style={{ fontSize:11, color: isActive ? s.color : "#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:8, transition:"color .2s", fontWeight:600 }}>{s.label}</div>
+              <div style={{ fontSize:32, fontWeight:700, color:s.color, fontFamily:"'Inter Tight',sans-serif" }}>{s.val}</div>
               {isActive && <div style={{ fontSize:10, color: s.color + "99", marginTop:6, letterSpacing:".06em" }}>FILTERING ↓ click to reset</div>}
             </div>
           );
@@ -710,27 +710,26 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
           <button
             className="input"
             onClick={() => setStatusDropdownOpen(o => !o)}
-            style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:24, cursor:"pointer", minWidth:160, textAlign:"left", background: statusDropdownOpen ? "#111827" : undefined }}
+            style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:24, cursor:"pointer", minWidth:160, textAlign:"left", background: statusDropdownOpen ? "#F4F5F6" : undefined }}
           >
             <span style={{ fontSize:13 }}>{statusLabel}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: statusDropdownOpen ? "rotate(180deg)" : "none", transition:"transform .15s", flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B9FA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: statusDropdownOpen ? "rotate(180deg)" : "none", transition:"transform .2s", flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           {statusDropdownOpen && (
-            <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, minWidth:200, background:"#0f1629", border:"1px solid #1e293b", borderRadius:8, padding:"6px 0", zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,.5)" }}>
-              {/* Select All / Clear */}
-              <div style={{ display:"flex", gap:0, borderBottom:"1px solid #1e293b", marginBottom:4 }}>
-                <button onClick={() => setStatusFilter(new Set(STATUSES))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>All</button>
-                <button onClick={() => setStatusFilter(new Set())} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>None</button>
+            <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, minWidth:200, background:"#FFFFFF", border:"1px solid #DDDFE4", borderRadius:8, padding:"6px 0", zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,.1)" }}>
+              <div style={{ display:"flex", gap:0, borderBottom:"1px solid #DDDFE4", marginBottom:4 }}>
+                <button onClick={() => setStatusFilter(new Set(STATUSES))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#9B9FA6", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase", fontWeight:600 }}>All</button>
+                <button onClick={() => setStatusFilter(new Set())} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#9B9FA6", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase", fontWeight:600 }}>None</button>
               </div>
               {STATUSES.map(s => (
                 <label key={s} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 14px", cursor:"pointer", transition:"background .1s" }}
-                  onMouseEnter={e => e.currentTarget.style.background="#1e293b"}
+                  onMouseEnter={e => e.currentTarget.style.background="#F9FAFA"}
                   onMouseLeave={e => e.currentTarget.style.background="transparent"}
                 >
-                  <div style={{ width:16, height:16, borderRadius:4, border:`2px solid ${statusFilter.has(s) ? STATUS_COLOR[s] : "#334155"}`, background: statusFilter.has(s) ? STATUS_COLOR[s] + "33" : "transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .1s" }}>
+                  <div style={{ width:16, height:16, borderRadius:4, border:`2px solid ${statusFilter.has(s) ? STATUS_COLOR[s] : "#DDDFE4"}`, background: statusFilter.has(s) ? STATUS_COLOR[s] + "22" : "transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .1s" }}>
                     {statusFilter.has(s) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={STATUS_COLOR[s]} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                   </div>
-                  <span style={{ fontSize:12, color: statusFilter.has(s) ? "#e2e8f0" : "#94a3b8" }}>{s}</span>
+                  <span style={{ fontSize:13, color: statusFilter.has(s) ? "#22252A" : "#737982" }}>{s}</span>
                   <span className="tag" style={{ marginLeft:"auto", background: STATUS_COLOR[s] + "22", color: STATUS_COLOR[s], fontSize:10 }}>
                     {keys.filter(k => k.status === s).length}
                   </span>
@@ -746,27 +745,27 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
           <button
             className="input"
             onClick={() => setLocDropdownOpen(o => !o)}
-            style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:24, cursor:"pointer", minWidth:160, textAlign:"left", background: locDropdownOpen ? "#111827" : undefined }}
+            style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:24, cursor:"pointer", minWidth:160, textAlign:"left", background: locDropdownOpen ? "#F4F5F6" : undefined }}
           >
             <span style={{ fontSize:13 }}>{locLabel}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: locDropdownOpen ? "rotate(180deg)" : "none", transition:"transform .15s", flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B9FA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: locDropdownOpen ? "rotate(180deg)" : "none", transition:"transform .2s", flexShrink:0 }}><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           {locDropdownOpen && (
-            <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, minWidth:240, background:"#0f1629", border:"1px solid #1e293b", borderRadius:8, padding:"6px 0", zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,.5)" }}>
-              <div style={{ display:"flex", gap:0, borderBottom:"1px solid #1e293b", marginBottom:4 }}>
-                <button onClick={() => setLocFilter(new Set(locationLabels))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>All</button>
-                <button onClick={() => setLocFilter(new Set())} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#64748b", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase" }}>None</button>
+            <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, minWidth:240, background:"#FFFFFF", border:"1px solid #DDDFE4", borderRadius:8, padding:"6px 0", zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,.1)" }}>
+              <div style={{ display:"flex", gap:0, borderBottom:"1px solid #DDDFE4", marginBottom:4 }}>
+                <button onClick={() => setLocFilter(new Set(locationLabels))} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#9B9FA6", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase", fontWeight:600 }}>All</button>
+                <button onClick={() => setLocFilter(new Set())} style={{ flex:1, padding:"6px 12px", background:"none", border:"none", color:"#9B9FA6", fontSize:11, cursor:"pointer", letterSpacing:".05em", textTransform:"uppercase", fontWeight:600 }}>None</button>
               </div>
               {locationLabels.map(l => (
                 <label key={l} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 14px", cursor:"pointer", transition:"background .1s" }}
-                  onMouseEnter={e => e.currentTarget.style.background="#1e293b"}
+                  onMouseEnter={e => e.currentTarget.style.background="#F9FAFA"}
                   onMouseLeave={e => e.currentTarget.style.background="transparent"}
                 >
-                  <div style={{ width:16, height:16, borderRadius:4, border:`2px solid ${locFilter.has(l) ? "#3b82f6" : "#334155"}`, background: locFilter.has(l) ? "#3b82f622" : "transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .1s" }}>
-                    {locFilter.has(l) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  <div style={{ width:16, height:16, borderRadius:4, border:`2px solid ${locFilter.has(l) ? "#2A00A5" : "#DDDFE4"}`, background: locFilter.has(l) ? "#EBEFFF" : "transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all .1s" }}>
+                    {locFilter.has(l) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2A00A5" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                   </div>
-                  <span style={{ fontSize:12, color: locFilter.has(l) ? "#e2e8f0" : "#94a3b8" }}>{l}</span>
-                  <span className="tag" style={{ marginLeft:"auto", background:"#1e293b", color:"#64748b", fontSize:10 }}>
+                  <span style={{ fontSize:13, color: locFilter.has(l) ? "#22252A" : "#737982" }}>{l}</span>
+                  <span className="tag" style={{ marginLeft:"auto", background:"#F4F5F6", color:"#9B9FA6", fontSize:10 }}>
                     {keys.filter(k => k.location === l).length}
                   </span>
                   <input type="checkbox" checked={locFilter.has(l)} onChange={() => toggleLoc(l)} style={{ display:"none" }} />
@@ -797,9 +796,9 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
         <div className="table-wrap">
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
-            <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
+            <tr style={{ background:"#F9FAFA", borderBottom:"1px solid #DDDFE4" }}>
               {["MvaID","Status","Location","Borrower","Last Updated By","Last Updated Datetime","Days Out","Actions"].map(h => (
-                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontWeight:500, letterSpacing:".06em", fontSize:11, textTransform:"uppercase" }}>{h}</th>
+                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#9B9FA6", fontWeight:600, letterSpacing:".06em", fontSize:11, textTransform:"uppercase" }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -817,21 +816,21 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
               const isOverdue = daysOut > 1 && OUT_STATUSES.has(k.status);
               const isLostLong = k.status === "Lost" && daysOut > 0;
               return (
-              <tr key={k.MvaID} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
+              <tr key={k.MvaID} className="table-row" style={{ borderBottom:"1px solid #DDDFE4" }}>
                 <td style={{ padding:"12px 16px" }}>
-                  <button onClick={() => { setSelectedKey(k.MvaID); setView("detail"); }} style={{ background:"none", border:"none", color:"#60a5fa", cursor:"pointer", fontFamily:"'Roboto',sans-serif", fontSize:13, textDecoration:"underline" }}>{k.MvaID}</button>
+                  <button onClick={() => { setSelectedKey(k.MvaID); setView("detail"); }} style={{ background:"none", border:"none", color:"#2A00A5", cursor:"pointer", fontFamily:"'Inter',sans-serif", fontSize:13, fontWeight:600, textDecoration:"underline", textUnderlineOffset:2 }}>{k.MvaID}</button>
                 </td>
                 <td style={{ padding:"12px 16px" }}>
                   <span className="tag" style={{ background: STATUS_COLOR[k.status] + "22", color: STATUS_COLOR[k.status] }}>{k.status}</span>
                 </td>
-                <td style={{ padding:"12px 16px", color:"#94a3b8", maxWidth:140 }}><span title={k.location} style={{ display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{k.location}</span></td>
-                <td style={{ padding:"12px 16px", color:"#94a3b8" }}>{k.lastBorrower || "—"}</td>
-                <td style={{ padding:"12px 16px", color:"#64748b" }}>{k.lastUpdatedBy}</td>
-                <td style={{ padding:"12px 16px", color:"#64748b", fontSize:11 }}>{fmtDT(k.lastUpdated)}</td>
+                <td style={{ padding:"12px 16px", color:"#737982", maxWidth:140 }}><span title={k.location} style={{ display:"block", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{k.location}</span></td>
+                <td style={{ padding:"12px 16px", color:"#737982" }}>{k.lastBorrower || "—"}</td>
+                <td style={{ padding:"12px 16px", color:"#9B9FA6" }}>{k.lastUpdatedBy}</td>
+                <td style={{ padding:"12px 16px", color:"#9B9FA6", fontSize:11 }}>{fmtDT(k.lastUpdated)}</td>
                 <td style={{ padding:"12px 16px" }}>
                   {k.status === "Checked In" || k.status === "Deactivated"
-                    ? <span style={{ color:"#475569" }}>—</span>
-                    : <span style={{ color: isOverdue || isLostLong ? "#ef4444" : "#f59e0b", fontWeight: isOverdue || isLostLong ? 600 : 400 }}>
+                    ? <span style={{ color:"#B8BCC2" }}>—</span>
+                    : <span style={{ color: isOverdue || isLostLong ? "#E43660" : "#C5B207", fontWeight: isOverdue || isLostLong ? 600 : 400 }}>
                         {daysOut}d {isOverdue ? "⚠" : isLostLong ? "⚠" : ""}
                       </span>
                   }
@@ -851,7 +850,7 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
             );
             })}
             {filtered.length === 0 && (
-              <tr><td colSpan={8} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No keys found</td></tr>
+              <tr><td colSpan={8} style={{ padding:"40px", textAlign:"center", color:"#B8BCC2" }}>No keys found</td></tr>
             )}
           </tbody>
         </table>
@@ -861,23 +860,23 @@ function Dashboard({ keys, borrowing, addKey, removeKey, bulkImport, setSelected
       {/* Pagination */}
       {totalPages > 1 && (
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:16, padding:"0 4px" }}>
-          <span style={{ fontSize:11, color:"#64748b" }}>
+          <span style={{ fontSize:12, color:"#9B9FA6" }}>
             Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} keys
           </span>
           <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(1)}>««</button>
-            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(p => p - 1)}>‹ Prev</button>
+            <button className="btn btn-ghost btn-sm" style={{ opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(1)}>««</button>
+            <button className="btn btn-ghost btn-sm" style={{ opacity: safePage === 1 ? 0.4 : 1 }} disabled={safePage === 1} onClick={() => setPage(p => p - 1)}>‹ Prev</button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1).reduce((acc, p, i, arr) => {
               if (i > 0 && p - arr[i-1] > 1) acc.push("...");
               acc.push(p);
               return acc;
             }, []).map((p, i) => p === "..." ? (
-              <span key={`ellipsis-${i}`} style={{ color:"#475569", padding:"0 4px" }}>…</span>
+              <span key={`ellipsis-${i}`} style={{ color:"#B8BCC2", padding:"0 4px" }}>…</span>
             ) : (
-              <button key={p} className="btn btn-sm" style={{ background: p === safePage ? "#3b82f6" : "#1e293b", color: p === safePage ? "#fff" : "#94a3b8", border:"none", minWidth:32 }} onClick={() => setPage(p)}>{p}</button>
+              <button key={p} className="btn btn-sm" style={{ background: p === safePage ? "#2A00A5" : "transparent", color: p === safePage ? "#fff" : "#737982", border: p === safePage ? "none" : "1px solid #DDDFE4", minWidth:32 }} onClick={() => setPage(p)}>{p}</button>
             ))}
-            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)}>Next ›</button>
-            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(totalPages)}>»»</button>
+            <button className="btn btn-ghost btn-sm" style={{ opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)}>Next ›</button>
+            <button className="btn btn-ghost btn-sm" style={{ opacity: safePage === totalPages ? 0.4 : 1 }} disabled={safePage === totalPages} onClick={() => setPage(totalPages)}>»»</button>
           </div>
         </div>
       )}
@@ -910,7 +909,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesInput, setNotesInput] = useState("");
 
-  if (!keyData) return <div style={{ color:"#64748b", padding:40 }}>Key not found.</div>;
+  if (!keyData) return <div style={{ color:"#9B9FA6", padding:40 }}>Key not found.</div>;
 
   const keyHistory = borrowing.filter(b => b.MvaID === keyData.MvaID).sort((a,b) => b.eventDT > a.eventDT ? 1 : -1);
   const keyAudit = audit.filter(a => a.MvaID === keyData.MvaID).sort((a,b) => b.dt > a.dt ? 1 : -1);
@@ -927,7 +926,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
 
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:20, marginBottom:24 }}>
         <div className="card">
-          <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Key Information</h3>
+          <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Key Information</h3>
           <InfoRow label="MvaID" value={keyData.MvaID} />
           <InfoRow label="Status" value={<span className="tag" style={{ background: STATUS_COLOR[keyData.status] + "22", color: STATUS_COLOR[keyData.status] }}>{keyData.status}</span>} />
           <InfoRow label="Location" value={keyData.location} />
@@ -938,23 +937,23 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
                 <textarea className="input" value={notesInput} onChange={e => setNotesInput(e.target.value)} rows={3} style={{ fontSize:12, resize:"vertical" }} autoFocus />
                 <div style={{ display:"flex", gap:6 }}>
                   <button className="btn btn-primary btn-sm" onClick={() => { updateNotes(keyData.MvaID, notesInput); setEditingNotes(false); }}>Save</button>
-                  <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={() => setEditingNotes(false)}>Cancel</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setEditingNotes(false)}>Cancel</button>
                 </div>
               </div>
             ) : (
               <span style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <span>{keyData.notes || <span style={{ color:"#475569" }}>—</span>}</span>
-                {canEdit && <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none", padding:"2px 8px", fontSize:10 }} onClick={() => { setNotesInput(keyData.notes || ""); setEditingNotes(true); }}>Edit</button>}
+                <span>{keyData.notes || <span style={{ color:"#B8BCC2" }}>—</span>}</span>
+                {canEdit && <button className="btn btn-ghost btn-sm" style={{ padding:"2px 8px", fontSize:10 }} onClick={() => { setNotesInput(keyData.notes || ""); setEditingNotes(true); }}>Edit</button>}
               </span>
             )
           } />
           {(keyData.status === "Checked Out" || keyData.status === "Lost") && daysOut !== null && (
-            <InfoRow label="Days Out" value={<span style={{ color: daysOut > 1 ? "#ef4444" : "#f59e0b" }}>{daysOut} day{daysOut !== 1 ? "s" : ""} {daysOut > 1 ? "⚠ OVERDUE" : ""}</span>} />
+            <InfoRow label="Days Out" value={<span style={{ color: daysOut > 1 ? "#E43660" : "#C5B207", fontWeight:600 }}>{daysOut} day{daysOut !== 1 ? "s" : ""} {daysOut > 1 ? "⚠ OVERDUE" : ""}</span>} />
           )}
         </div>
 
         <div className="card">
-          <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Last Transaction</h3>
+          <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Last Transaction</h3>
           <InfoRow label="Last Updated" value={fmtDT(keyData.lastUpdated)} />
           <InfoRow label="Last Updated By" value={keyData.lastUpdatedBy || "—"} />
           <InfoRow label="Last Borrower" value={keyData.lastBorrower || "—"} />
@@ -968,7 +967,7 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
                 <button className="btn btn-success" onClick={() => setCheckinModal(true)}>Check In</button>
               )}
               {(keyData.status === "Checked In" || keyData.status === "Checked Out" || keyData.status === "With Customer" || keyData.status === "With Off Site Vendor") && (
-                <button className="btn" onClick={() => setConfirmLost(true)} style={{ background:"#78350f", color:"#fcd34d", border:"1px solid #92400e", display:"flex", alignItems:"center", gap:6 }}>
+                <button className="btn" onClick={() => setConfirmLost(true)} style={{ background:"#FCF7DE", color:"#C5B207", border:"1px solid #C5B20744", display:"flex", alignItems:"center", gap:6 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="11"/><line x1="11" y1="14" x2="11.01" y2="14"/></svg>
                   Mark as Lost
                 </button>
@@ -986,20 +985,20 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
 
       {/* Borrowing History */}
       <div className="card" style={{ marginBottom:20 }}>
-        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Check-In / Check-Out History</h3>
-        {keyHistory.length === 0 ? <p style={{ color:"#475569", fontSize:13 }}>No transaction history.</p> : (
+        <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Check-In / Check-Out History</h3>
+        {keyHistory.length === 0 ? <p style={{ color:"#B8BCC2", fontSize:13 }}>No transaction history.</p> : (
           <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-            <thead><tr style={{ borderBottom:"1px solid #1e293b" }}>
-              {["Action","Librarian","Borrower","Reason","Date"].map(h => <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
+            <thead><tr style={{ borderBottom:"1px solid #DDDFE4" }}>
+              {["Action","Librarian","Borrower","Reason","Date"].map(h => <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#9B9FA6", fontSize:11, textTransform:"uppercase", fontWeight:600 }}>{h}</th>)}
             </tr></thead>
             <tbody>
               {keyHistory.map(h => (
-                <tr key={h.id} style={{ borderBottom:"1px solid #0f1629" }}>
-                  <td style={{ padding:"8px 12px" }}><span className="tag" style={{ background: h.action === "Checked Out" ? "#f59e0b22" : "#22c55e22", color: h.action === "Checked Out" ? "#f59e0b" : "#22c55e" }}>{h.action}</span></td>
-                  <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.librarianName}</td>
-                  <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.borrowerName || "—"}</td>
-                  <td style={{ padding:"8px 12px", color:"#94a3b8" }}>{h.reasonCode || <span style={{ color:"#475569" }}>—</span>}</td>
-                  <td style={{ padding:"8px 12px", color:"#64748b", fontSize:11 }}>{fmtDT(h.eventDT)}</td>
+                <tr key={h.id} style={{ borderBottom:"1px solid #F4F5F6" }}>
+                  <td style={{ padding:"8px 12px" }}><span className="tag" style={{ background: h.action === "Checked Out" ? "#FCF7DE" : "#E7F8F3", color: h.action === "Checked Out" ? "#C5B207" : "#24A87C" }}>{h.action}</span></td>
+                  <td style={{ padding:"8px 12px", color:"#737982" }}>{h.librarianName}</td>
+                  <td style={{ padding:"8px 12px", color:"#737982" }}>{h.borrowerName || "—"}</td>
+                  <td style={{ padding:"8px 12px", color:"#737982" }}>{h.reasonCode || <span style={{ color:"#B8BCC2" }}>—</span>}</td>
+                  <td style={{ padding:"8px 12px", color:"#9B9FA6", fontSize:11 }}>{fmtDT(h.eventDT)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1009,13 +1008,13 @@ function KeyDetail({ keyData, borrowing, audit, checkOut, checkIn, removeKey, ma
 
       {/* Audit Trail */}
       <div className="card">
-        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Audit Trail</h3>
-        {keyAudit.length === 0 ? <p style={{ color:"#475569", fontSize:13 }}>No audit records.</p> : (
+        <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Audit Trail</h3>
+        {keyAudit.length === 0 ? <p style={{ color:"#B8BCC2", fontSize:13 }}>No audit records.</p> : (
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {keyAudit.map(a => (
-              <div key={a.id} style={{ padding:"10px 14px", background:"#080c18", borderRadius:6, fontSize:12, display:"flex", justifyContent:"space-between", gap:16 }}>
-                <span style={{ color:"#94a3b8" }}>{a.change}</span>
-                <div style={{ display:"flex", gap:12, color:"#64748b", fontSize:11, flexShrink:0 }}>
+              <div key={a.id} style={{ padding:"10px 14px", background:"#F9FAFA", borderRadius:8, fontSize:12, display:"flex", justifyContent:"space-between", gap:16, border:"1px solid #F4F5F6" }}>
+                <span style={{ color:"#737982" }}>{a.change}</span>
+                <div style={{ display:"flex", gap:12, color:"#9B9FA6", fontSize:11, flexShrink:0 }}>
                   <span>{a.user}</span>
                   <span>{fmtDT(a.dt)}</span>
                 </div>
@@ -1063,19 +1062,19 @@ function AuditLog({ audit }) {
       <input className="input" placeholder="Search by Key ID, change, or user..." value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth:380, marginBottom:20 }} />
       <div className="card" style={{ padding:0, overflow:"hidden" }}>
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-          <thead><tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
-            {["DateTime","MvaID","Change","User"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase", letterSpacing:".06em" }}>{h}</th>)}
+          <thead><tr style={{ background:"#F9FAFA", borderBottom:"1px solid #DDDFE4" }}>
+            {["DateTime","MvaID","Change","User"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#9B9FA6", fontSize:11, textTransform:"uppercase", letterSpacing:".06em", fontWeight:600 }}>{h}</th>)}
           </tr></thead>
           <tbody>
             {filtered.map(a => (
-              <tr key={a.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
-                <td style={{ padding:"10px 16px", color:"#64748b", fontSize:11 }}>{fmtDT(a.dt)}</td>
-                <td style={{ padding:"10px 16px", color:"#60a5fa", fontFamily:"'Roboto',sans-serif" }}>{a.MvaID}</td>
-                <td style={{ padding:"10px 16px", color:"#94a3b8" }}>{a.change}</td>
-                <td style={{ padding:"10px 16px", color:"#64748b" }}>{a.user}</td>
+              <tr key={a.id} className="table-row" style={{ borderBottom:"1px solid #DDDFE4" }}>
+                <td style={{ padding:"10px 16px", color:"#9B9FA6", fontSize:11 }}>{fmtDT(a.dt)}</td>
+                <td style={{ padding:"10px 16px", color:"#2A00A5", fontFamily:"'Inter',sans-serif", fontWeight:600 }}>{a.MvaID}</td>
+                <td style={{ padding:"10px 16px", color:"#737982" }}>{a.change}</td>
+                <td style={{ padding:"10px 16px", color:"#9B9FA6" }}>{a.user}</td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={4} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No records found</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={4} style={{ padding:"40px", textAlign:"center", color:"#B8BCC2" }}>No records found</td></tr>}
           </tbody>
         </table>
       </div>
@@ -1110,7 +1109,7 @@ function UsersView({ users, setUsers, notify }) {
     <div>
       <PageHeader title="User Management" subtitle="Manage system users and roles" />
       <div className="card" style={{ maxWidth:500, marginBottom:24 }}>
-        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Add User</h3>
+        <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Add User</h3>
         <div className="form-group"><label className="form-label">Name</label><input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" /></div>
         <div className="form-group"><label className="form-label">Role</label>
           <select className="input" value={role} onChange={e => setRole(e.target.value)}>
@@ -1121,19 +1120,19 @@ function UsersView({ users, setUsers, notify }) {
       </div>
       <div className="card" style={{ padding:0, overflow:"hidden" }}>
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
-          <thead><tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
-            {["Name","Email","Role","Actions"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>)}
+          <thead><tr style={{ background:"#F9FAFA", borderBottom:"1px solid #DDDFE4" }}>
+            {["Name","Email","Role","Actions"].map(h => <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#9B9FA6", fontSize:11, textTransform:"uppercase", fontWeight:600 }}>{h}</th>)}
           </tr></thead>
           <tbody>
             {users.map(u => (
-              <tr key={u.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
-                <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>{u.name}</td>
-                <td style={{ padding:"12px 16px", color:"#94a3b8" }}>{u.email || <span style={{ color:"#475569" }}>—</span>}</td>
+              <tr key={u.id} className="table-row" style={{ borderBottom:"1px solid #DDDFE4" }}>
+                <td style={{ padding:"12px 16px", color:"#22252A", fontWeight:500 }}>{u.name}</td>
+                <td style={{ padding:"12px 16px", color:"#737982" }}>{u.email || <span style={{ color:"#B8BCC2" }}>—</span>}</td>
                 <td style={{ padding:"12px 16px" }}>
-                  <span className="tag" style={{ background:"#1e293b", color:"#94a3b8" }}>{u.role}</span>
+                  <span className="tag" style={{ background:"#EBEFFF", color:"#2A00A5" }}>{u.role}</span>
                 </td>
                 <td style={{ padding:"12px 16px", display:"flex", gap:8 }}>
-                  <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => setEditUser({...u})}>Edit</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setEditUser({...u})}>Edit</button>
                   <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(u.id)}>Remove</button>
                 </td>
               </tr>
@@ -1200,7 +1199,7 @@ function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
     <div>
       <PageHeader title="Reason Codes" subtitle="Manage checkout reason codes picklist" />
       <div className="card" style={{ maxWidth:500, marginBottom:24 }}>
-        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Add Reason Code</h3>
+        <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Add Reason Code</h3>
         <div className="form-group">
           <label className="form-label">Label</label>
           <input
@@ -1217,16 +1216,16 @@ function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
       <div className="card" style={{ padding:0, overflow:"hidden", maxWidth:500 }}>
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
-            <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
+            <tr style={{ background:"#F9FAFA", borderBottom:"1px solid #DDDFE4" }}>
               {["Reason Code","Actions"].map(h => (
-                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>
+                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#9B9FA6", fontSize:11, textTransform:"uppercase", fontWeight:600 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {reasonCodes.map(rc => (
-              <tr key={rc.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
-                <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>
+              <tr key={rc.id} className="table-row" style={{ borderBottom:"1px solid #DDDFE4" }}>
+                <td style={{ padding:"12px 16px", color:"#22252A" }}>
                   {editId === rc.id ? (
                     <input
                       className="input"
@@ -1246,7 +1245,7 @@ function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
                     </>
                   ) : (
                     <>
-                      <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => startEdit(rc)}>Edit</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => startEdit(rc)}>Edit</button>
                       <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(rc.id)}>Remove</button>
                     </>
                   )}
@@ -1254,7 +1253,7 @@ function ReasonCodesView({ reasonCodes, setReasonCodes, notify }) {
               </tr>
             ))}
             {reasonCodes.length === 0 && (
-              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No reason codes defined</td></tr>
+              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#B8BCC2" }}>No reason codes defined</td></tr>
             )}
           </tbody>
         </table>
@@ -1315,7 +1314,7 @@ function LocationsView({ locations, setLocations, notify }) {
     <div>
       <PageHeader title="Locations" subtitle="Manage key assigned location picklist" />
       <div className="card" style={{ maxWidth:500, marginBottom:24 }}>
-        <h3 style={{ fontSize:12, color:"#64748b", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16 }}>Add Location</h3>
+        <h3 style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".08em", marginBottom:16, fontWeight:600 }}>Add Location</h3>
         <div className="form-group">
           <label className="form-label">Label</label>
           <input
@@ -1332,16 +1331,16 @@ function LocationsView({ locations, setLocations, notify }) {
       <div className="card" style={{ padding:0, overflow:"hidden", maxWidth:500 }}>
         <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
           <thead>
-            <tr style={{ background:"#080c18", borderBottom:"1px solid #1e293b" }}>
+            <tr style={{ background:"#F9FAFA", borderBottom:"1px solid #DDDFE4" }}>
               {["Location","Actions"].map(h => (
-                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#64748b", fontSize:11, textTransform:"uppercase" }}>{h}</th>
+                <th key={h} style={{ padding:"12px 16px", textAlign:"left", color:"#9B9FA6", fontSize:11, textTransform:"uppercase", fontWeight:600 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {locations.map(loc => (
-              <tr key={loc.id} className="table-row" style={{ borderBottom:"1px solid #1e293b" }}>
-                <td style={{ padding:"12px 16px", color:"#e2e8f0" }}>
+              <tr key={loc.id} className="table-row" style={{ borderBottom:"1px solid #DDDFE4" }}>
+                <td style={{ padding:"12px 16px", color:"#22252A" }}>
                   {editId === loc.id ? (
                     <input
                       className="input"
@@ -1361,7 +1360,7 @@ function LocationsView({ locations, setLocations, notify }) {
                     </>
                   ) : (
                     <>
-                      <button className="btn btn-sm" style={{ background:"#1e3a5f", color:"#93c5fd", border:"none" }} onClick={() => startEdit(loc)}>Edit</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => startEdit(loc)}>Edit</button>
                       <button className="btn btn-danger btn-sm" onClick={() => setConfirmRemove(loc.id)}>Remove</button>
                     </>
                   )}
@@ -1369,7 +1368,7 @@ function LocationsView({ locations, setLocations, notify }) {
               </tr>
             ))}
             {locations.length === 0 && (
-              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#475569" }}>No locations defined</td></tr>
+              <tr><td colSpan={2} style={{ padding:"40px", textAlign:"center", color:"#B8BCC2" }}>No locations defined</td></tr>
             )}
           </tbody>
         </table>
@@ -1392,9 +1391,9 @@ function LocationsView({ locations, setLocations, notify }) {
 function EditUserModal({ user, setUser, onSave, onClose }) {
   const [showPw, setShowPw] = useState(false);
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }}>
+    <div style={{ position:"fixed", inset:0, background:"rgba(11,12,14,.6)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, backdropFilter:"blur(4px)" }}>
       <div className="card" style={{ width:420, maxWidth:"90vw" }}>
-        <h2 style={{ fontSize:16, fontWeight:700, color:"#e2e8f0", marginBottom:20 }}>Edit User</h2>
+        <h2 style={{ fontSize:18, fontWeight:700, color:"#22252A", marginBottom:20 }}>Edit User</h2>
         <div className="form-group">
           <label className="form-label">Name *</label>
           <input className="input" value={user.name} onChange={e => setUser(u => ({...u, name: e.target.value}))} />
@@ -1407,7 +1406,7 @@ function EditUserModal({ user, setUser, onSave, onClose }) {
           <label className="form-label">Password</label>
           <div style={{ display:"flex", gap:8 }}>
             <input className="input" type={showPw ? "text" : "password"} value={user.password || ""} onChange={e => setUser(u => ({...u, password: e.target.value}))} placeholder="Set password" style={{ flex:1 }} />
-            <button className="btn btn-sm" style={{ background:"#1e293b", color:"#94a3b8", border:"none", whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>{showPw ? "Hide" : "Show"}</button>
+            <button className="btn btn-ghost btn-sm" style={{ whiteSpace:"nowrap" }} onClick={() => setShowPw(s => !s)}>{showPw ? "Hide" : "Show"}</button>
           </div>
         </div>
         <div className="form-group">
@@ -1417,7 +1416,7 @@ function EditUserModal({ user, setUser, onSave, onClose }) {
           </select>
         </div>
         <div style={{ display:"flex", gap:8, justifyContent:"flex-end", marginTop:8 }}>
-          <button className="btn" style={{ background:"#1e293b", color:"#94a3b8", border:"none" }} onClick={onClose}>Cancel</button>
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" onClick={() => onSave(user)}>Save Changes</button>
         </div>
       </div>
@@ -1432,13 +1431,13 @@ function ConfirmModal({ title, message, confirmLabel = "Confirm", danger = false
       <div className="modal" style={{ maxWidth:400 }} onClick={e => e.stopPropagation()}>
         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
           {danger && (
-            <div style={{ width:36, height:36, borderRadius:"50%", background:"#7f1d1d", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <div style={{ width:36, height:36, borderRadius:"50%", background:"#FCE8F0", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E43660" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             </div>
           )}
-          <h2 style={{ fontFamily:"'Roboto',sans-serif", fontSize:17, color:"#e2e8f0" }}>{title}</h2>
+          <h2 style={{ fontFamily:"'Inter',sans-serif", fontSize:17, color:"#22252A", fontWeight:700 }}>{title}</h2>
         </div>
-        <p style={{ fontSize:13, color:"#94a3b8", marginBottom:24, lineHeight:1.6 }}>{message}</p>
+        <p style={{ fontSize:13, color:"#737982", marginBottom:24, lineHeight:1.6 }}>{message}</p>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
           <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button className={`btn ${danger ? "btn-danger" : "btn-primary"}`} onClick={() => { onConfirm(); onClose(); }}>{confirmLabel}</button>
@@ -1485,8 +1484,8 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ maxWidth:440 }} onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Roboto',sans-serif", fontSize:18, marginBottom:6 }}>Export CSV</h2>
-        <p style={{ fontSize:12, color:"#64748b", marginBottom:28 }}>{filteredKeys.length} row{filteredKeys.length !== 1 ? "s" : ""} ready to export</p>
+        <h2 style={{ fontFamily:"'Inter',sans-serif", fontSize:18, marginBottom:6, fontWeight:700, color:"#22252A" }}>Export CSV</h2>
+        <p style={{ fontSize:13, color:"#737982", marginBottom:28 }}>{filteredKeys.length} row{filteredKeys.length !== 1 ? "s" : ""} ready to export</p>
 
         <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
           <button className="btn btn-primary" onClick={download} style={{ justifyContent:"center", padding:"12px 16px" }}>
@@ -1496,10 +1495,10 @@ function ExportModal({ filteredKeys, borrowing, onClose }) {
           <button
             className="btn btn-ghost"
             onClick={copy}
-            style={{ justifyContent:"center", padding:"12px 16px", color: copied ? "#22c55e" : undefined, borderColor: copied ? "#22c55e44" : undefined }}
+            style={{ justifyContent:"center", padding:"12px 16px", color: copied ? "#24A87C" : undefined, borderColor: copied ? "#24A87C44" : undefined }}
           >
             {copied
-              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard!</>
+              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#24A87C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied to clipboard!</>
               : <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy to clipboard</>
             }
           </button>
@@ -1526,7 +1525,7 @@ function CheckOutModal({ MvaID, currentUser, checkOut, reasonCodes, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Check Out Key {MvaID}</h2>
+        <h2 style={{ fontFamily:"'Inter',sans-serif", marginBottom:20, fontSize:18, fontWeight:700, color:"#22252A" }}>Check Out Key {MvaID}</h2>
         <div className="form-group"><label className="form-label">Librarian Name *</label><input className="input" value={librarian} onChange={e => setLibrarian(e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Borrower Name *</label><input className="input" value={borrower} onChange={e => setBorrower(e.target.value)} placeholder="Who is borrowing this key?" /></div>
         <div className="form-group">
@@ -1552,7 +1551,7 @@ function CheckInModal({ MvaID, currentUser, checkIn, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Check In Key {MvaID}</h2>
+        <h2 style={{ fontFamily:"'Inter',sans-serif", marginBottom:20, fontSize:18, fontWeight:700, color:"#22252A" }}>Check In Key {MvaID}</h2>
         <div className="form-group"><label className="form-label">Librarian Name *</label><input className="input" value={librarian} onChange={e => setLibrarian(e.target.value)} /></div>
         <div className="form-group"><label className="form-label">Borrower Name *</label><input className="input" value={borrower} onChange={e => setBorrower(e.target.value)} placeholder="Who is returning this key?" /></div>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end", marginTop:20 }}>
@@ -1573,7 +1572,7 @@ function AddKeyModal({ onAdd, onClose, locations }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:20, fontSize:18 }}>Add New Key</h2>
+        <h2 style={{ fontFamily:"'Inter',sans-serif", marginBottom:20, fontSize:18, fontWeight:700, color:"#22252A" }}>Add New Key</h2>
         <div className="form-group"><label className="form-label">MvaID (8-digit) *</label><input className="input" value={MvaID} onChange={e => setMvaID(e.target.value)} placeholder="12345678" maxLength={8} /></div>
         <div className="form-group"><label className="form-label">Assigned Location *</label>
           <select className="input" value={location} onChange={e => setLocation(e.target.value)}>
@@ -1641,24 +1640,24 @@ function ImportModal({ onImport, onClose, notify }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" style={{ maxWidth:640 }} onClick={e => e.stopPropagation()}>
-        <h2 style={{ fontFamily:"'Roboto',sans-serif", marginBottom:4, fontSize:18 }}>Import Keys from CSV</h2>
-        <p style={{ fontSize:12, color:"#64748b", marginBottom:16 }}>Required columns: MvaID, Key Assigned Location, Key Status. Optional: # of Keys</p>
+        <h2 style={{ fontFamily:"'Inter',sans-serif", marginBottom:4, fontSize:18, fontWeight:700, color:"#22252A" }}>Import Keys from CSV</h2>
+        <p style={{ fontSize:13, color:"#737982", marginBottom:16 }}>Required columns: MvaID, Key Assigned Location, Key Status. Optional: # of Keys</p>
 
         {/* Sample template section */}
-        <div style={{ background:"#0a0e1a", border:"1px solid #1e293b", borderRadius:8, marginBottom:20, overflow:"hidden" }}>
+        <div style={{ background:"#F9FAFA", border:"1px solid #DDDFE4", borderRadius:8, marginBottom:20, overflow:"hidden" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 16px", gap:16 }}>
             <div>
-              <div style={{ fontSize:12, color:"#94a3b8", marginBottom:2 }}>Not sure about the format?</div>
-              <div style={{ fontSize:11, color:"#64748b" }}>View the required column headers and example rows below.</div>
+              <div style={{ fontSize:13, color:"#737982", marginBottom:2 }}>Not sure about the format?</div>
+              <div style={{ fontSize:11, color:"#9B9FA6" }}>View the required column headers and example rows below.</div>
             </div>
             <div style={{ display:"flex", gap:8, flexShrink:0 }}>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowSample(s => !s)} style={{ display:"flex", alignItems:"center", gap:5 }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 {showSample ? "Hide" : "View Template"}
               </button>
-              <button className="btn btn-ghost btn-sm" onClick={copySample} style={{ display:"flex", alignItems:"center", gap:5, color: copied ? "#22c55e" : undefined, borderColor: copied ? "#22c55e44" : undefined }}>
+              <button className="btn btn-ghost btn-sm" onClick={copySample} style={{ display:"flex", alignItems:"center", gap:5, color: copied ? "#24A87C" : undefined, borderColor: copied ? "#24A87C44" : undefined }}>
                 {copied
-                  ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!</>
+                  ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#24A87C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!</>
                   : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy CSV Columns</>
                 }
               </button>
@@ -1666,20 +1665,20 @@ function ImportModal({ onImport, onClose, notify }) {
           </div>
 
           {showSample && (
-            <div style={{ borderTop:"1px solid #1e293b", overflowX:"auto" }}>
+            <div style={{ borderTop:"1px solid #DDDFE4", overflowX:"auto" }}>
               <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11 }}>
                 <thead>
-                  <tr style={{ background:"#080c18" }}>
+                  <tr style={{ background:"#F4F5F6" }}>
                     {SAMPLE_HEADERS.map(h => (
-                      <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#3b82f6", fontWeight:600, letterSpacing:".04em", whiteSpace:"nowrap" }}>{h}</th>
+                      <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:"#2A00A5", fontWeight:600, letterSpacing:".04em", whiteSpace:"nowrap" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {SAMPLE_ROWS.map((row, i) => (
-                    <tr key={i} style={{ borderTop:"1px solid #0f1629" }}>
+                    <tr key={i} style={{ borderTop:"1px solid #F4F5F6" }}>
                       {row.map((cell, j) => (
-                        <td key={j} style={{ padding:"7px 12px", color:"#64748b", whiteSpace:"nowrap" }}>{cell || <span style={{ color:"#334155", fontStyle:"italic" }}>optional</span>}</td>
+                        <td key={j} style={{ padding:"7px 12px", color:"#737982", whiteSpace:"nowrap" }}>{cell || <span style={{ color:"#DDDFE4", fontStyle:"italic" }}>optional</span>}</td>
                       ))}
                     </tr>
                   ))}
@@ -1694,15 +1693,15 @@ function ImportModal({ onImport, onClose, notify }) {
 
         {preview && (
           <>
-            <p style={{ fontSize:12, color:"#94a3b8", marginBottom:10 }}>Preview ({rawRows.length} rows):</p>
+            <p style={{ fontSize:12, color:"#9B9FA6", marginBottom:10 }}>Preview ({rawRows.length} rows):</p>
             <div style={{ overflowX:"auto", marginBottom:16 }}>
               <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11 }}>
-                <thead><tr style={{ borderBottom:"1px solid #1e293b" }}>
-                  {Object.keys(preview[0]).map(h => <th key={h} style={{ padding:"6px 10px", textAlign:"left", color:"#64748b" }}>{h}</th>)}
+                <thead><tr style={{ borderBottom:"1px solid #DDDFE4", background:"#F9FAFA" }}>
+                  {Object.keys(preview[0]).map(h => <th key={h} style={{ padding:"6px 10px", textAlign:"left", color:"#9B9FA6", fontWeight:600 }}>{h}</th>)}
                 </tr></thead>
                 <tbody>
-                  {preview.map((r,i) => <tr key={i} style={{ borderBottom:"1px solid #0f1629" }}>
-                    {Object.values(r).map((v,j) => <td key={j} style={{ padding:"6px 10px", color:"#94a3b8" }}>{v}</td>)}
+                  {preview.map((r,i) => <tr key={i} style={{ borderBottom:"1px solid #F4F5F6" }}>
+                    {Object.values(r).map((v,j) => <td key={j} style={{ padding:"6px 10px", color:"#737982" }}>{v}</td>)}
                   </tr>)}
                 </tbody>
               </table>
@@ -1723,17 +1722,17 @@ function ImportModal({ onImport, onClose, notify }) {
 function PageHeader({ title, subtitle }) {
   return (
     <div style={{ marginBottom:24 }}>
-      <h1 style={{ fontFamily:"'Roboto',sans-serif", fontSize:26, fontWeight:700, color:"#e2e8f0", letterSpacing:"-.02em", marginBottom:2 }}>{title}</h1>
-      {subtitle && <p style={{ fontSize:12, color:"#64748b", letterSpacing:".04em" }}>{subtitle}</p>}
+      <h1 style={{ fontFamily:"'Inter Tight',sans-serif", fontSize:28, fontWeight:700, color:"#22252A", letterSpacing:"-.5px", marginBottom:2 }}>{title}</h1>
+      {subtitle && <p style={{ fontSize:13, color:"#9B9FA6", letterSpacing:".01em" }}>{subtitle}</p>}
     </div>
   );
 }
 
 function InfoRow({ label, value }) {
   return (
-    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderBottom:"1px solid #1e293b", gap:16 }}>
-      <span style={{ fontSize:11, color:"#64748b", textTransform:"uppercase", letterSpacing:".06em", flexShrink:0 }}>{label}</span>
-      <span style={{ fontSize:13, color:"#e2e8f0", textAlign:"right" }}>{value}</span>
+    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0", borderBottom:"1px solid #F4F5F6", gap:16 }}>
+      <span style={{ fontSize:11, color:"#9B9FA6", textTransform:"uppercase", letterSpacing:".06em", flexShrink:0, fontWeight:600 }}>{label}</span>
+      <span style={{ fontSize:13, color:"#22252A", textAlign:"right" }}>{value}</span>
     </div>
   );
 }
